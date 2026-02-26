@@ -28,6 +28,8 @@ export default function KiosManagement() {
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState({ ...EMPTY_FORM });
   const [saving, setSaving] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const fetchKios = useCallback(() => {
     setLoading(true);
@@ -113,8 +115,42 @@ export default function KiosManagement() {
   const handleDelete = async (id: number) => {
     if (!confirm("Yakin ingin menghapus kios ini?")) return;
     await api.delete(`/admin/kios/${id}`);
+    setSelectedIds((prev) => { const n = new Set(prev); n.delete(id); return n; });
     fetchKios();
   };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`Yakin ingin menghapus ${selectedIds.size} kios yang dipilih?`)) return;
+    setBulkDeleting(true);
+    try {
+      await api.post("/admin/kios/bulk-delete", { ids: Array.from(selectedIds) });
+      setSelectedIds(new Set());
+      fetchKios();
+    } catch (e: any) {
+      alert(e.response?.data?.message ?? "Gagal menghapus.");
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === kiosList.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(kiosList.map((k) => k.id)));
+    }
+  };
+
+  const allSelected = kiosList.length > 0 && selectedIds.size === kiosList.length;
 
   const f = (k: keyof typeof form, v: string) =>
     setForm((p) => ({ ...p, [k]: v }));
@@ -195,9 +231,46 @@ export default function KiosManagement() {
               </select>
             </div>
           </div>
+
+          {/* Bulk Action Bar */}
+          {selectedIds.size > 0 && (
+            <div style={{
+              padding: "10px 24px", display: "flex", alignItems: "center",
+              gap: 12, background: "#eff6ff", borderBottom: "1px solid #bfdbfe",
+            }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#1e40af" }}>
+                ✅ {selectedIds.size} kios dipilih
+              </span>
+              <button
+                className="btn-sm btn-red"
+                style={{ padding: "6px 16px", borderRadius: 8, fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}
+                onClick={handleBulkDelete}
+                disabled={bulkDeleting}
+              >
+                <Trash2 size={12} /> {bulkDeleting ? "Menghapus..." : "Hapus yang dipilih"}
+              </button>
+              <button
+                className="btn-sm btn-gray"
+                style={{ padding: "6px 16px", borderRadius: 8, fontSize: 12 }}
+                onClick={() => setSelectedIds(new Set())}
+              >
+                Batal pilih
+              </button>
+            </div>
+          )}
+
           <table>
             <thead>
               <tr>
+                <th style={{ width: 36, textAlign: "center" }}>
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleSelectAll}
+                    style={{ cursor: "pointer", accentColor: "#0057A8" }}
+                    title="Pilih semua"
+                  />
+                </th>
                 <th>No. Kios</th>
                 <th>Pasar</th>
                 <th>Pedagang</th>
@@ -211,7 +284,7 @@ export default function KiosManagement() {
               {loading ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     style={{
                       textAlign: "center",
                       padding: 32,
@@ -224,7 +297,7 @@ export default function KiosManagement() {
               ) : kiosList.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     style={{
                       textAlign: "center",
                       padding: 32,
@@ -236,7 +309,17 @@ export default function KiosManagement() {
                 </tr>
               ) : (
                 kiosList.map((k) => (
-                  <tr key={k.id}>
+                  <tr key={k.id} style={{
+                    background: selectedIds.has(k.id) ? "#eff6ff" : undefined,
+                  }}>
+                    <td style={{ textAlign: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(k.id)}
+                        onChange={() => toggleSelect(k.id)}
+                        style={{ cursor: "pointer", accentColor: "#0057A8" }}
+                      />
+                    </td>
                     <td>
                       <strong>{k.nomor}</strong>
                     </td>

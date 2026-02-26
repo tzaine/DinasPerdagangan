@@ -28,7 +28,7 @@ class KiosController extends Controller
             });
         }
 
-        $kios = $query->orderBy('pasar_id')->orderBy('nomor')
+        $kios = $query->orderBy('pasar_id')->orderByRaw('CAST(nomor AS UNSIGNED)')
             ->paginate($request->per_page ?? 20);
 
         return response()->json($kios);
@@ -84,5 +84,20 @@ class KiosController extends Controller
     {
         $kios->delete();
         return response()->json(['message' => 'Kios berhasil dihapus.']);
+    }
+
+    public function bulkDestroy(Request $request): JsonResponse
+    {
+        $request->validate([
+            'ids'   => 'required|array|min:1',
+            'ids.*' => 'integer|exists:kios,id',
+        ]);
+
+        $count = Kios::whereIn('id', $request->ids)->delete();
+
+        return response()->json([
+            'message' => "$count kios berhasil dihapus.",
+            'deleted' => $count,
+        ]);
     }
 }

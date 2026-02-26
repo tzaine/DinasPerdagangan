@@ -17,9 +17,9 @@ class PasarSeeder extends Seeder
             [
                 'name'        => 'Pasar Rejomulyo',
                 'description' => 'Pasar tradisional di Kawasan Semarang Utara, dikenal sebagai pasar ikan dan hasil laut terbesar di Kota Semarang.',
-                'address'     => 'Jl. Coaster No.1, Tanjungmas, Kec. Semarang Utara, Kota Semarang',
-                'latitude'    => -6.9388,
-                'longitude'   => 110.4221,
+                'address'     => 'Rejomulyo, Kec. Semarang Tim., Kota Semarang, Jawa Tengah',
+                'latitude'    => -6.9640,
+                'longitude'   => 110.4346,
                 'is_active'   => true,
             ]
         );

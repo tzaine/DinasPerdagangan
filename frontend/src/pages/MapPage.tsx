@@ -51,25 +51,102 @@ function FlyTo({ lat, lng }: { lat: number; lng: number }) {
   return null;
 }
 
+// Auto-fit map bounds to GIS layer data
+function FitToGisLayers({ layers }: { layers: GisLayerData[] }) {
+  const map = useMap();
+  const [fitted, setFitted] = useState(false);
+
+  useEffect(() => {
+    if (fitted || layers.length === 0) return;
+
+    try {
+      const allCoords: [number, number][] = [];
+      layers.forEach(l => {
+        if (!l.geojson?.features) return;
+        const extractCoords = (coords: any) => {
+          if (!Array.isArray(coords)) return;
+          if (typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+            allCoords.push([coords[1], coords[0]]); // GeoJSON is [lng, lat], Leaflet is [lat, lng]
+            return;
+          }
+          coords.forEach(extractCoords);
+        };
+        l.geojson.features.forEach((f: any) => {
+          if (f.geometry?.coordinates) extractCoords(f.geometry.coordinates);
+        });
+      });
+
+      if (allCoords.length > 0) {
+        const bounds = L.latLngBounds(allCoords);
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 18 });
+        setFitted(true);
+        console.log("[MapPage] Fitted map to GIS layers bounds:", bounds.toBBoxString());
+      }
+    } catch (e) {
+      console.error("[MapPage] Error fitting bounds:", e);
+    }
+  }, [layers, fitted, map]);
+
+  return null;
+}
+
 interface GeoJsonFC {
   type: string;
   features: {
     type: string;
-    geometry: { type: string; coordinates: number[][] };
-    properties: Record<string, string>;
+    geometry: { type: string; coordinates: any };
+    properties: Record<string, any>;
   }[];
 }
+
+
+interface GisLayerData {
+  id: number;
+  name: string;
+  type: string;
+  color: string;
+  opacity: number;
+  pasar_id: number;
+  geojson: GeoJsonFC | null;
+}
+
+const BASEMAPS = {
+  satellite: {
+    url: "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+    attribution: "&copy; Google Maps",
+    maxZoom: 21,
+    label: "🛰️ Satelit",
+  },
+  hybrid: {
+    url: "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+    attribution: "&copy; Google Maps",
+    maxZoom: 21,
+    label: "🌍 Hybrid",
+  },
+  street: {
+    url: "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+    attribution: "&copy; Google Maps",
+    maxZoom: 21,
+    label: "🗺️ Street",
+  },
+} as const;
+
+type BasemapKey = keyof typeof BASEMAPS;
 
 export default function MapPage() {
   const [pasars, setPasars] = useState<Pasar[]>([]);
   const [selected, setSelected] = useState<Pasar | null>(null);
   const [geojson, setGeojson] = useState<Record<number, GeoJsonFC>>({});
+  const [gisLayers, setGisLayers] = useState<GisLayerData[]>([]);
+  const [visibleLayers, setVisibleLayers] = useState<Set<number>>(new Set());
+  const [basemap, setBasemap] = useState<BasemapKey>("satellite");
   const [flyTarget, setFlyTarget] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
 
   useEffect(() => {
+    // Fetch pasars and their kiosk GeoJSON
     api.get("/pasars").then((r) => {
       setPasars(r.data);
       r.data.forEach((p: Pasar) => {
@@ -80,6 +157,26 @@ export default function MapPage() {
           })
           .catch(() => {});
       });
+    });
+
+    // Fetch active GIS layers uploaded from admin
+    api.get("/layers").then((r) => {
+      console.log("[MapPage] GIS layers loaded:", r.data.length, "layers");
+      r.data.forEach((l: GisLayerData) => {
+        console.log(`  Layer ${l.id}: ${l.name}, has geojson: ${!!l.geojson}, features: ${l.geojson?.features?.length ?? 0}`);
+        if (l.geojson?.features?.[0]?.geometry?.coordinates) {
+          const c = l.geojson.features[0].geometry.coordinates;
+          let first: any = c;
+          while (Array.isArray(first) && Array.isArray(first[0])) first = first[0];
+          console.log(`    First coordinate: [${first}]`);
+        }
+      });
+      setGisLayers(r.data);
+      // All active layers visible by default
+      const ids = new Set<number>(r.data.filter((l: GisLayerData) => l.geojson).map((l: GisLayerData) => l.id));
+      setVisibleLayers(ids);
+    }).catch((err) => {
+      console.error("[MapPage] Failed to load GIS layers:", err);
     });
   }, []);
 
@@ -99,6 +196,15 @@ export default function MapPage() {
       weight: 1.5,
       fillOpacity: opacity,
     };
+  };
+
+  const getGisLayerStyle = (layer: GisLayerData) => {
+    return (_feature: any) => ({
+      fillColor: layer.color ?? "#0057A8",
+      color: "#333",
+      weight: 1.5,
+      fillOpacity: layer.opacity ?? 0.6,
+    });
   };
 
   const onEachFeature = (feature: any, layer: L.Layer) => {
@@ -122,6 +228,44 @@ export default function MapPage() {
       `);
     }
   };
+
+  const onEachGisFeature = (feature: any, layer: L.Layer) => {
+    if (feature.properties) {
+      const p = feature.properties;
+      const noLapak = p.No_Lapak ?? p.OBJECTID ?? "";
+      const kepemilikan = p.Kepemilikan ?? "";
+      const komoditi = p.Komoditi ?? p.KategoriKomoditi ?? "";
+      const kategori = p.KategoriKomoditi ?? "";
+
+      layer.bindPopup(`
+        <div style="min-width:200px; font-family:Inter,sans-serif;">
+          <div style="font-weight:700; font-size:14px; color:#0057A8; margin-bottom:6px;">
+            🏪 Lapak No. ${noLapak}
+          </div>
+          ${kepemilikan ? `<p style="margin:3px 0;font-size:13px;"><b>👤 Pedagang:</b> ${kepemilikan}</p>` : ""}
+          ${komoditi ? `<p style="margin:3px 0;font-size:13px;"><b>🐟 Komoditi:</b> ${komoditi}</p>` : ""}
+          ${kategori ? `<p style="margin:3px 0;font-size:13px;"><b>📦 Kategori:</b> ${kategori}</p>` : ""}
+          <span style="
+            display:inline-block; margin-top:6px; padding:2px 10px;
+            border-radius:999px; font-size:11px; font-weight:600;
+            background:${kepemilikan ? "#dcfce7" : "#f1f5f9"};
+            color:${kepemilikan ? "#16a34a" : "#64748b"};
+          ">${kepemilikan ? "Terisi" : "Kosong"}</span>
+        </div>
+      `);
+    }
+  };
+
+  const toggleLayer = (id: number) => {
+    setVisibleLayers(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const layersWithData = gisLayers.filter(l => l.geojson);
 
   return (
     <div>
@@ -237,16 +381,95 @@ export default function MapPage() {
 
       <div className="map-section" style={{ padding: "24px 24px 40px" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div className="map-container">
+          {/* Layer Toggle Panel */}
+          {layersWithData.length > 0 && (
+            <div style={{
+              marginBottom: 16,
+              padding: "12px 16px",
+              background: "#fff",
+              borderRadius: 12,
+              border: "1px solid #e2e8f0",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+            }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                🗂️ Layer GIS ({layersWithData.length})
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {layersWithData.map(l => (
+                  <button
+                    key={l.id}
+                    onClick={() => toggleLayer(l.id)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "6px 12px",
+                      borderRadius: 8,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      border: `2px solid ${visibleLayers.has(l.id) ? l.color : "#e2e8f0"}`,
+                      background: visibleLayers.has(l.id) ? `${l.color}15` : "#f8fafc",
+                      color: visibleLayers.has(l.id) ? l.color : "#94a3b8",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    <span style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: 3,
+                      background: visibleLayers.has(l.id) ? l.color : "#cbd5e1",
+                      opacity: visibleLayers.has(l.id) ? l.opacity : 0.3,
+                      display: "inline-block",
+                    }} />
+                    {l.name}
+                    <span style={{ fontSize: 10, opacity: 0.7 }}>
+                      ({l.geojson?.features?.length ?? 0} fitur)
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="map-container" style={{ position: "relative" }}>
             <MapContainer
-              center={[-6.9728, 110.415]}
-              zoom={13}
+              center={[-6.9626, 110.4346]}
+              zoom={15}
+              maxZoom={21}
               style={{ height: "100%", width: "100%" }}
             >
               <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                key={basemap}
+                url={BASEMAPS[basemap].url}
+                attribution={BASEMAPS[basemap].attribution}
+                maxZoom={BASEMAPS[basemap].maxZoom}
               />
+
+              {/* Basemap Switcher */}
+              <div style={{
+                position: "absolute", top: 10, right: 10, zIndex: 1000,
+                display: "flex", flexDirection: "column", gap: 4,
+                background: "rgba(255,255,255,0.95)", borderRadius: 10,
+                padding: 6, boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+              }}>
+                {(Object.keys(BASEMAPS) as BasemapKey[]).map((key) => (
+                  <button
+                    key={key}
+                    onClick={() => setBasemap(key)}
+                    style={{
+                      padding: "6px 12px", borderRadius: 6, fontSize: 12,
+                      fontWeight: 600, cursor: "pointer", border: "none",
+                      background: basemap === key ? "#0057A8" : "transparent",
+                      color: basemap === key ? "#fff" : "#374151",
+                      transition: "all 0.15s",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {BASEMAPS[key].label}
+                  </button>
+                ))}
+              </div>
 
               {flyTarget && <FlyTo lat={flyTarget.lat} lng={flyTarget.lng} />}
 
@@ -300,7 +523,7 @@ export default function MapPage() {
                 );
               })}
 
-              {/* GeoJSON Kiosk Layers */}
+              {/* GeoJSON Kiosk Layers (from database kios records) */}
               {pasars.map(
                 (p) =>
                   geojson[p.id] && (
@@ -312,6 +535,22 @@ export default function MapPage() {
                     />
                   ),
               )}
+
+              {/* GIS Layers uploaded from Admin */}
+              {layersWithData.map(
+                (l) =>
+                  visibleLayers.has(l.id) && l.geojson && (
+                    <GeoJSON
+                      key={`gis-${l.id}-${visibleLayers.has(l.id)}-${l.geojson.features?.length}`}
+                      data={l.geojson as any}
+                      style={getGisLayerStyle(l)}
+                      onEachFeature={onEachGisFeature}
+                    />
+                  ),
+              )}
+
+              {/* Auto-fit to GIS layers when first loaded */}
+              {layersWithData.length > 0 && <FitToGisLayers layers={layersWithData} />}
             </MapContainer>
           </div>
           <p
@@ -323,7 +562,7 @@ export default function MapPage() {
             }}
           >
             Klik marker pasar untuk terbang ke lokasi. Klik poligon kios untuk
-            detail pedagang.
+            detail pedagang. Gunakan toggle layer untuk mengatur visibilitas layer GIS.
           </p>
         </div>
       </div>
