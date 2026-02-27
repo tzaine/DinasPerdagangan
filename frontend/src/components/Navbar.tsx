@@ -15,7 +15,7 @@ export default function Navbar() {
           <div className="brand-logo">
             <Building2 size={20} />
           </div>
-          <span>GIS Dindag Semarang</span>
+          <span>GIS Disdag Semarang</span>
         </Link>
         <ul className="navbar-nav">
           <li>

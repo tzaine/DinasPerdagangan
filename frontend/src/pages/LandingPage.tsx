@@ -62,86 +62,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="section" style={{ background: "var(--color-white)" }}>
-        <div className="container">
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div
-                className="stat-card-icon"
-                style={{ background: "rgba(0,87,168,0.1)" }}
-              >
-                <Store size={24} color="var(--color-primary)" />
-              </div>
-              <div className="stat-card-body">
-                <h3>{summary?.total_kios ?? "—"}</h3>
-                <p>Total Kios</p>
-                <span
-                  className="stat-card-badge"
-                  style={{ background: "#dbeafe", color: "#1d4ed8" }}
-                >
-                  {summary?.total_pasars ?? 0} Pasar
-                </span>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div
-                className="stat-card-icon"
-                style={{ background: "rgba(34,197,94,0.1)" }}
-              >
-                <TrendingUp size={24} color="var(--color-success)" />
-              </div>
-              <div className="stat-card-body">
-                <h3>{summary?.active_kios ?? "—"}</h3>
-                <p>Kios Aktif</p>
-                <span
-                  className="stat-card-badge"
-                  style={{ background: "#dcfce7", color: "#16a34a" }}
-                >
-                  {summary?.occupancy_rate ?? 0}% Terisi
-                </span>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div
-                className="stat-card-icon"
-                style={{ background: "rgba(239,68,68,0.1)" }}
-              >
-                <Activity size={24} color="var(--color-danger)" />
-              </div>
-              <div className="stat-card-body">
-                <h3>{summary?.inactive_kios ?? "—"}</h3>
-                <p>Kios Tidak Aktif</p>
-                <span
-                  className="stat-card-badge"
-                  style={{ background: "#fee2e2", color: "#dc2626" }}
-                >
-                  Non-aktif
-                </span>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div
-                className="stat-card-icon"
-                style={{ background: "rgba(245,166,35,0.1)" }}
-              >
-                <MapPin size={24} color="var(--color-accent)" />
-              </div>
-              <div className="stat-card-body">
-                <h3>{summary?.empty_kios ?? "—"}</h3>
-                <p>Kios Kosong</p>
-                <span
-                  className="stat-card-badge"
-                  style={{ background: "#fef9c3", color: "#ca8a04" }}
-                >
-                  Tersedia
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Pasar Cards */}
       <section className="section">
         <div className="container">
@@ -209,6 +129,86 @@ export default function LandingPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section className="section" style={{ background: "var(--color-white)" }}>
+        <div className="container">
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div
+                className="stat-card-icon"
+                style={{ background: "#eef2ff", color: "#1e3a8a" }} /* Indigo light */
+              >
+                <Store size={22} strokeWidth={2.5} />
+              </div>
+              <div className="stat-card-body">
+                <h3>{summary?.total_kios ?? "—"}</h3>
+                <p>Total Kios</p>
+                <span
+                  className="stat-card-badge"
+                  style={{ background: "#fef3c7", color: "#b45309" }} /* Amber light */
+                >
+                  {summary?.total_pasars ?? 0} Pasar
+                </span>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div
+                className="stat-card-icon"
+                style={{ background: "#ecfdf5", color: "#059669" }} /* Emerald light */
+              >
+                <TrendingUp size={22} strokeWidth={2.5} />
+              </div>
+              <div className="stat-card-body">
+                <h3>{summary?.active_kios ?? "—"}</h3>
+                <p>Kios Aktif</p>
+                <span
+                  className="stat-card-badge"
+                  style={{ background: "#dcfce7", color: "#15803d" }} /* Green light */
+                >
+                  {summary?.occupancy_rate ?? 0}% Terisi
+                </span>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div
+                className="stat-card-icon"
+                style={{ background: "#fef2f2", color: "#dc2626" }} /* Red light */
+              >
+                <Activity size={22} strokeWidth={2.5} />
+              </div>
+              <div className="stat-card-body">
+                <h3>{summary?.inactive_kios ?? "—"}</h3>
+                <p>Kios Tidak Aktif</p>
+                <span
+                  className="stat-card-badge"
+                  style={{ background: "#fee2e2", color: "#b91c1c" }}
+                >
+                  Non-aktif
+                </span>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div
+                className="stat-card-icon"
+                style={{ background: "#fff7ed", color: "#ea580c" }} /* Orange light */
+              >
+                <MapPin size={22} strokeWidth={2.5} />
+              </div>
+              <div className="stat-card-body">
+                <h3>{summary?.empty_kios ?? "—"}</h3>
+                <p>Kios Kosong</p>
+                <span
+                  className="stat-card-badge"
+                  style={{ background: "#fef3c7", color: "#b45309" }}
+                >
+                  Tersedia
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </section>

@@ -41,7 +41,7 @@ export default function Footer() {
                 <a href="#">📞 (024) 8311111</a>
               </li>
               <li>
-                <a href="#">✉️ dindag@semarangkota.go.id</a>
+                <a href="#">✉️ disdag@semarangkota.go.id</a>
               </li>
             </ul>
           </div>

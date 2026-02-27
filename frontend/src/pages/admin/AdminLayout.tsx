@@ -50,7 +50,7 @@ export default function AdminLayout() {
             </div>
             <div>
               <h2>Admin Panel</h2>
-              <p>Dindag Semarang</p>
+              <p>Disdag Semarang</p>
             </div>
           </div>
           <div

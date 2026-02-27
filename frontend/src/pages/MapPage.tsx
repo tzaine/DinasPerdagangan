@@ -210,20 +210,40 @@ export default function MapPage() {
   const onEachFeature = (feature: any, layer: L.Layer) => {
     if (feature.properties) {
       const p = feature.properties;
+      const val = (v: any) => (v != null && v !== "" ? v : "—");
+      const statusLabel =
+        p.status === "active" ? "Aktif" : p.status === "inactive" ? "Tidak Aktif" : "Kosong";
+      const statusColor =
+        p.status === "active" ? "#dcfce7" : p.status === "inactive" ? "#fee2e2" : "#f1f5f9";
+      const statusTextColor =
+        p.status === "active" ? "#16a34a" : p.status === "inactive" ? "#dc2626" : "#64748b";
+
+      const rows = [
+        ["No. Kios", val(p.nomor)],
+        ["Pedagang", val(p.nama_pedagang)],
+        ["Komoditas", val(p.komoditas)],
+        ["Kategori", val(p.category)],
+      ]
+        .map(
+          ([label, value]) =>
+            `<tr>
+              <td style="font-weight:600;padding:4px 12px 4px 0;color:#475569;font-size:12px;white-space:nowrap;">${label}</td>
+              <td style="font-size:12px;color:#1e293b;">${value}</td>
+            </tr>`,
+        )
+        .join("");
+
       layer.bindPopup(`
-        <div style="min-width:180px; font-family: Inter, sans-serif;">
-          <div style="font-weight:700; font-size:14px; color:#0057A8; margin-bottom:6px;">
-            Kios ${p.nomor}
+        <div style="min-width:200px; font-family:Inter,sans-serif;">
+          <div style="font-weight:700;font-size:14px;color:#0057A8;margin-bottom:8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">
+            🏪 Detail Kios
           </div>
-          ${p.nama_pedagang ? `<p style="margin:2px 0;font-size:13px;"><b>Pedagang:</b> ${p.nama_pedagang}</p>` : ""}
-          ${p.komoditas ? `<p style="margin:2px 0;font-size:13px;"><b>Komoditas:</b> ${p.komoditas}</p>` : ""}
-          ${p.category ? `<p style="margin:2px 0;font-size:13px;"><b>Kategori:</b> ${p.category}</p>` : ""}
+          <table style="border-collapse:collapse;width:100%;">${rows}</table>
           <span style="
-            display:inline-block; margin-top:6px; padding:2px 10px;
-            border-radius:999px; font-size:11px; font-weight:600;
-            background:${p.status === "active" ? "#dcfce7" : p.status === "inactive" ? "#fee2e2" : "#f1f5f9"};
-            color:${p.status === "active" ? "#16a34a" : p.status === "inactive" ? "#dc2626" : "#64748b"};
-          ">${p.status === "active" ? "Aktif" : p.status === "inactive" ? "Tidak Aktif" : "Kosong"}</span>
+            display:inline-block;margin-top:8px;padding:3px 12px;
+            border-radius:999px;font-size:11px;font-weight:600;
+            background:${statusColor};color:${statusTextColor};
+          ">${statusLabel}</span>
         </div>
       `);
     }
@@ -231,28 +251,30 @@ export default function MapPage() {
 
   const onEachGisFeature = (feature: any, layer: L.Layer) => {
     if (feature.properties) {
-      const p = feature.properties;
-      const noLapak = p.No_Lapak ?? p.OBJECTID ?? "";
-      const kepemilikan = p.Kepemilikan ?? "";
-      const komoditi = p.Komoditi ?? p.KategoriKomoditi ?? "";
-      const kategori = p.KategoriKomoditi ?? "";
+      const props = feature.properties;
+      const labelMap: Record<string, string> = {
+        No_Lapak: "No. Lapak",
+        Kepemilikan: "Pedagang",
+        Komoditi: "Komoditi",
+        KategoriKomoditi: "Kategori",
+      };
+      const hiddenKeys = ["Shape_Length", "Shape_Area", "OBJECTID", "Shape_Leng"];
+      const rows = Object.entries(props)
+        .filter(([k]) => !hiddenKeys.includes(k))
+        .map(([k, v]) => {
+          const label = labelMap[k] ?? k;
+          const val = v != null && v !== "" ? v : "—";
+          return `<tr><td style="font-weight:600;padding:4px 12px 4px 0;color:#475569;font-size:12px;white-space:nowrap;">${label}</td><td style="font-size:12px;color:#1e293b;">${val}</td></tr>`;
+        })
+        .join("");
 
-      layer.bindPopup(`
-        <div style="min-width:200px; font-family:Inter,sans-serif;">
-          <div style="font-weight:700; font-size:14px; color:#0057A8; margin-bottom:6px;">
-            🏪 Lapak No. ${noLapak}
+      if (rows) {
+        layer.bindPopup(`
+          <div style="min-width:200px; max-height:300px; overflow-y:auto; font-family:Inter,sans-serif;">
+            <table style="border-collapse:collapse;">${rows}</table>
           </div>
-          ${kepemilikan ? `<p style="margin:3px 0;font-size:13px;"><b>👤 Pedagang:</b> ${kepemilikan}</p>` : ""}
-          ${komoditi ? `<p style="margin:3px 0;font-size:13px;"><b>🐟 Komoditi:</b> ${komoditi}</p>` : ""}
-          ${kategori ? `<p style="margin:3px 0;font-size:13px;"><b>📦 Kategori:</b> ${kategori}</p>` : ""}
-          <span style="
-            display:inline-block; margin-top:6px; padding:2px 10px;
-            border-radius:999px; font-size:11px; font-weight:600;
-            background:${kepemilikan ? "#dcfce7" : "#f1f5f9"};
-            color:${kepemilikan ? "#16a34a" : "#64748b"};
-          ">${kepemilikan ? "Terisi" : "Kosong"}</span>
-        </div>
-      `);
+        `);
+      }
     }
   };
 
@@ -523,7 +545,26 @@ export default function MapPage() {
                 );
               })}
 
-              {/* GeoJSON Kiosk Layers (from database kios records) */}
+              {/* GIS Layers uploaded from Admin - rendered as reference outlines underneath */}
+              {layersWithData.map(
+                (l) =>
+                  visibleLayers.has(l.id) && l.geojson && (
+                    <GeoJSON
+                      key={`gis-${l.id}-${visibleLayers.has(l.id)}-${l.geojson.features?.length}`}
+                      data={l.geojson as any}
+                      style={() => ({
+                        fillColor: l.color ?? "#0057A8",
+                        color: l.color ?? "#0057A8",
+                        weight: 1.5,
+                        fillOpacity: 0,      // transparent fill — let kios colors show
+                        opacity: 0.5,
+                      })}
+                      onEachFeature={onEachGisFeature}
+                    />
+                  ),
+              )}
+
+              {/* GeoJSON Kiosk Layers from DB - always rendered on top with per-category colors */}
               {pasars.map(
                 (p) =>
                   geojson[p.id] && (
@@ -532,19 +573,6 @@ export default function MapPage() {
                       data={geojson[p.id] as any}
                       style={getStyle}
                       onEachFeature={onEachFeature}
-                    />
-                  ),
-              )}
-
-              {/* GIS Layers uploaded from Admin */}
-              {layersWithData.map(
-                (l) =>
-                  visibleLayers.has(l.id) && l.geojson && (
-                    <GeoJSON
-                      key={`gis-${l.id}-${visibleLayers.has(l.id)}-${l.geojson.features?.length}`}
-                      data={l.geojson as any}
-                      style={getGisLayerStyle(l)}
-                      onEachFeature={onEachGisFeature}
                     />
                   ),
               )}

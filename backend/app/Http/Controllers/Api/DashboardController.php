@@ -30,18 +30,26 @@ class DashboardController extends Controller
             ];
         });
 
-        // Per-pasar occupancy - use Pasar model directly
-        $pasarStats = Pasar::where('is_active', true)->get()->map(function ($p) {
-            return [
-                'id'       => $p->id,
-                'name'     => $p->name,
-                'slug'     => $p->slug,
-                'total'    => $p->kios()->count(),
-                'active'   => $p->kios()->where('status', 'active')->count(),
-                'inactive' => $p->kios()->where('status', 'inactive')->count(),
-                'empty'    => $p->kios()->where('status', 'empty')->count(),
-            ];
-        });
+        // Per-pasar occupancy — eager load kios to avoid N+1 queries
+        $pasarStats = Pasar::where('is_active', true)
+            ->with('kios')
+            ->get()
+            ->map(function ($p) {
+                $kios     = $p->kios;
+                $total    = $kios->count();
+                $active   = $kios->where('status', 'active')->count();
+                $inactive = $kios->where('status', 'inactive')->count();
+                $empty    = $kios->where('status', 'empty')->count();
+                return [
+                    'id'       => $p->id,
+                    'name'     => $p->name,
+                    'slug'     => $p->slug,
+                    'total'    => $total,
+                    'active'   => $active,
+                    'inactive' => $inactive,
+                    'empty'    => $empty,
+                ];
+            });
 
         return response()->json([
             'summary' => [
