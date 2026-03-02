@@ -52,5 +52,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/admin/layers/{gisLayer}', [AdminGisLayerController::class, 'update']);
     Route::delete('/admin/layers/{gisLayer}', [AdminGisLayerController::class, 'destroy']);
     Route::post('/admin/layers/{gisLayer}/upload', [AdminGisLayerController::class, 'uploadGeojson']);
+    Route::post('/admin/layers/{gisLayer}/sync-kios', [AdminGisLayerController::class, 'syncKios']);
     Route::post('/admin/layers/list-gdb-layers', [AdminGisLayerController::class, 'listGdbLayers']);
 });

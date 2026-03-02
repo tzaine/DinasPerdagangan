@@ -94,12 +94,22 @@ class GisLayerController extends Controller
 
         $gisLayer->update(['geojson' => json_encode($decoded, JSON_UNESCAPED_UNICODE)]);
 
+        // Auto-update Pasar coordinates based on GeoJSON centroid
+        $centroid = $this->calculateGeoJsonCentroid($decoded);
+        if ($centroid) {
+            $gisLayer->pasar()->update([
+                'longitude' => $centroid[0],
+                'latitude'  => $centroid[1],
+            ]);
+        }
+
         return response()->json([
             'message' => $reprojected
-                ? 'GeoJSON berhasil diupload dan dikonversi ke WGS84.'
-                : 'GeoJSON berhasil diupload.',
+                ? 'GeoJSON berhasil diupload dan dikonversi ke WGS84. Koordinat Pasar diperbarui.'
+                : 'GeoJSON berhasil diupload. Koordinat Pasar diperbarui.',
             'layer'        => $gisLayer->fresh(),
             'reprojected'  => $reprojected,
+            'centroid'     => $centroid,
         ]);
     }
 
@@ -237,6 +247,15 @@ class GisLayerController extends Controller
 
             $gisLayer->update(['geojson' => json_encode($decoded, JSON_UNESCAPED_UNICODE)]);
 
+            // Auto-update Pasar coordinates based on GeoJSON centroid
+            $centroid = $this->calculateGeoJsonCentroid($decoded);
+            if ($centroid) {
+                $gisLayer->pasar()->update([
+                    'longitude' => $centroid[0],
+                    'latitude'  => $centroid[1],
+                ]);
+            }
+
             // Get list of available layers for response
             $availableLayers = array_map(
                 fn($f) => pathinfo($f, PATHINFO_FILENAME),
@@ -244,11 +263,12 @@ class GisLayerController extends Controller
             );
 
             return response()->json([
-                'message'          => 'File GDB berhasil dikonversi dan diupload!',
+                'message'          => 'File GDB berhasil dikonversi dan diupload! Koordinat Pasar diperbarui.',
                 'layer'            => $gisLayer->fresh(),
                 'features_count'   => count($decoded['features'] ?? []),
                 'available_layers' => $availableLayers,
                 'converted_file'   => basename($geojsonFiles[0]),
+                'centroid'         => $centroid,
             ]);
 
         } finally {
@@ -411,6 +431,46 @@ class GisLayerController extends Controller
     }
 
     /**
+     * Calculate centroid (average center) of a GeoJSON FeatureCollection.
+     * Returns [longitude, latitude] or null.
+     */
+    private function calculateGeoJsonCentroid(array $geojson): ?array
+    {
+        $features = $geojson['features'] ?? [];
+        if (empty($features)) return null;
+
+        $sumLon = 0;
+        $sumLat = 0;
+        $count = 0;
+
+        foreach ($features as $feature) {
+            $coords = $feature['geometry']['coordinates'] ?? null;
+            if (!$coords) continue;
+
+            // Flatten all coordinates recursively
+            $flatCoords = [];
+            array_walk_recursive($coords, function($a) use (&$flatCoords) { $flatCoords[] = $a; });
+
+            // Each pair is [lon, lat]
+            $len = count($flatCoords);
+            for ($i = 0; $i < $len - 1; $i += 2) {
+                if (is_numeric($flatCoords[$i]) && is_numeric($flatCoords[$i+1])) {
+                    $sumLon += $flatCoords[$i];
+                    $sumLat += $flatCoords[$i+1];
+                    $count++;
+                }
+            }
+        }
+
+        if ($count === 0) return null;
+
+        return [
+            round($sumLon / $count, 8),
+            round($sumLat / $count, 8),
+        ];
+    }
+
+    /**
      * Recursively reproject coordinates from EPSG:3857 to EPSG:4326.
      * Handles Point, LineString, Polygon, Multi* geometry types.
      */
@@ -460,8 +520,13 @@ class GisLayerController extends Controller
 
     public function destroy(GisLayer $gisLayer): JsonResponse
     {
+        $pasarId = $gisLayer->pasar_id;
         $gisLayer->delete();
-        return response()->json(['message' => 'Layer berhasil dihapus.']);
+        
+        // Hapus juga data Kios (titik/polygon) pada pasar tersebut agar hilang dari peta interaktif
+        \App\Models\Kios::where('pasar_id', $pasarId)->forceDelete();
+
+        return response()->json(['message' => 'Layer dan data Kios di peta berhasil dihapus.']);
     }
 
     /**
@@ -510,6 +575,89 @@ class GisLayerController extends Controller
         } finally {
             $this->removeDirectory($tempDir);
         }
+    }
+
+    /**
+     * Sync GeoJSON features to the Kios table
+     */
+    public function syncKios(Request $request, GisLayer $gisLayer): JsonResponse
+    {
+        if (!$gisLayer->geojson) {
+            return response()->json(['message' => 'Layer ini tidak memiliki data GeoJSON.'], 400);
+        }
+
+        $decoded = is_string($gisLayer->geojson) ? json_decode($gisLayer->geojson, true) : $gisLayer->geojson;
+        $features = $decoded['features'] ?? [];
+
+        if (empty($features)) {
+            return response()->json(['message' => 'Tidak ada fitur di dalam GeoJSON.'], 400);
+        }
+
+        $pasarId = $gisLayer->pasar_id;
+        $count = 0;
+
+        foreach ($features as $f) {
+            $props = $f['properties'] ?? [];
+            if (empty($props)) continue;
+
+            // Try to figure out the Kios Number from common fields
+            $nomor = $props['NomorKios'] ?? $props['No_Lapak'] ?? $props['no_kios'] ?? $props['nomor'] ?? null;
+            if (!$nomor) {
+                // Autogenerate if missing, but it's risky. Let's try OBJECTID.
+                $nomor = $props['OBJECTID'] ?? uniqid('K-');
+            }
+
+            // Figure out Pedagang
+            $pedagang = $props['NamaPemilik'] ?? $props['Kepemilikan'] ?? $props['nama_pedagang'] ?? null;
+
+            // Figure out Komoditas and Category
+            $komoditas = $props['Komoditi'] ?? $props['komoditas'] ?? null;
+            $catName = $props['KategoriKomoditi'] ?? $props['kategori'] ?? null;
+            
+            $catId = null;
+            if ($catName) {
+                $category = \App\Models\KiosCategory::firstOrCreate(
+                    ['name' => $catName],
+                    ['color_hex' => '#0057A8', 'icon' => 'store']
+                );
+                $catId = $category->id;
+            }
+
+            // Figure out Luas
+            $luas = $props['Luas'] ?? $props['luas'] ?? $props['Ukuran'] ?? null;
+            if (is_string($luas)) {
+                $luas = preg_replace('/[^0-9.]/', '', str_replace(',', '.', $luas));
+                $luas = floatval($luas) ?: null;
+            }
+
+            $keterangan = $props['Keterangan'] ?? $props['keterangan'] ?? null;
+
+            // Status logic
+            $status = 'active';
+            if (empty($pedagang) || strtolower($pedagang) === 'kosong') {
+                $status = 'empty';
+            }
+
+            \App\Models\Kios::updateOrCreate(
+                ['pasar_id' => $pasarId, 'nomor' => (string) $nomor],
+                [
+                    'category_id'   => $catId,
+                    'nama_pedagang' => $pedagang ? (string) $pedagang : null,
+                    'komoditas'     => $komoditas ? (string) $komoditas : null,
+                    'status'        => $status,
+                    'luas'          => $luas,
+                    'keterangan'    => $keterangan,
+                    'geometry'      => $f['geometry'] ?? null,
+                ]
+            );
+
+            $count++;
+        }
+
+        return response()->json([
+            'message' => "Berhasil menyinkronkan $count kios ke database.",
+            'synced'  => $count
+        ]);
     }
 }
 

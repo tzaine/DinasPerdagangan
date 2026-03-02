@@ -182,7 +182,7 @@ export default function MapPage() {
 
   const PASAR_CONFIG: Record<string, { emoji: string; color: string }> = {
     rejomulyo: { emoji: "🐟", color: "#0057A8" },
-    klitikan: { emoji: "🛒", color: "#7c3aed" },
+    klitikan: { emoji: "🍊", color: "#7c3aed" },
   };
 
   const getStyle = (feature: any) => {
@@ -287,7 +287,14 @@ export default function MapPage() {
     });
   };
 
-  const layersWithData = gisLayers.filter(l => l.geojson);
+  const layersWithData = gisLayers.filter((l) => l.geojson);
+
+  // Only show pasars that have either kios geojson features or gis layers
+  const activePasars = pasars.filter((p) => {
+    const hasKiosData = geojson[p.id]?.features?.length > 0;
+    const hasGisData = layersWithData.some((l) => l.pasar_id === p.id);
+    return hasKiosData || hasGisData;
+  });
 
   return (
     <div>
@@ -318,7 +325,7 @@ export default function MapPage() {
             🗺️ Peta Interaktif Pasar
           </h1>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {pasars.map((p) => {
+            {activePasars.map((p) => {
               const cfg = PASAR_CONFIG[p.slug] ?? {
                 emoji: "🏪",
                 color: "#0057A8",
@@ -496,7 +503,7 @@ export default function MapPage() {
               {flyTarget && <FlyTo lat={flyTarget.lat} lng={flyTarget.lng} />}
 
               {/* Market Markers */}
-              {pasars.map((p) => {
+              {activePasars.map((p) => {
                 const cfg = PASAR_CONFIG[p.slug] ?? {
                   emoji: "🏪",
                   color: "#0057A8",

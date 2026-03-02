@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Upload, Trash2, X, Eye, EyeOff, FileArchive, FileJson } from "lucide-react";
+import { Plus, Upload, Trash2, X, Eye, EyeOff, FileArchive, FileJson, Database } from "lucide-react";
 import api from "../../lib/api";
 import type { GisLayer, Pasar } from "../../types";
 
@@ -80,6 +80,19 @@ export default function LayerManagement() {
     fetchLayers();
   };
 
+  const handleSyncKios = async (layer: GisLayer) => {
+    if (!layer.geojson) return alert("Layer ini belum memiliki GeoJSON.");
+    if (!confirm(`Yakin ingin sinkronisasi layer '${layer.name}' ke Data Kios? Ini akan menambahkan/mengupdate kios berdasarkan data polygon.`)) return;
+    
+    try {
+      const res = await api.post(`/admin/layers/${layer.id}/sync-kios`);
+      alert(res.data.message || "Sinkronisasi berhasil.");
+    } catch (e: any) {
+      alert(e.response?.data?.message || "Gagal sinkronisasi data kios.");
+    }
+  };
+
+
   const f = (k: keyof typeof form, v: string | boolean) =>
     setForm((p) => ({ ...p, [k]: v }));
 
@@ -154,6 +167,11 @@ export default function LayerManagement() {
                       <button className="btn-sm btn-blue" title="Upload File GDB/GeoJSON" onClick={() => { setTarget(l); setFile(null); setModal("upload"); }}>
                         <Upload size={12} />
                       </button>
+                      {l.geojson && (
+                        <button className="btn-sm btn-green" title="Sinkronisasi ke Data Kios" style={{ background: "#22c55e", color: "white" }} onClick={() => handleSyncKios(l)}>
+                          <Database size={12} />
+                        </button>
+                      )}
                       <button className="btn-sm btn-red" title="Hapus" onClick={() => handleDelete(l.id)}>
                         <Trash2 size={12} />
                       </button>

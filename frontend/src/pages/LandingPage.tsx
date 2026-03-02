@@ -88,7 +88,7 @@ export default function LandingPage() {
                   <span
                     style={{ filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.3))" }}
                   >
-                    {p.slug === "rejomulyo" ? "🐟" : "🛒"}
+                    {p.slug === "rejomulyo" ? "🐟" : "🍊"}
                   </span>
                 </div>
                 <div className="pasar-card-body">
