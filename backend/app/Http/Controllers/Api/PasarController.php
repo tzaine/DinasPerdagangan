@@ -53,13 +53,15 @@ class PasarController extends Controller
                     'type'       => 'Feature',
                     'geometry'   => $kios->geometry,
                     'properties' => [
-                        'id'           => $kios->id,
-                        'nomor'        => $kios->nomor,
-                        'nama_pedagang'=> $kios->nama_pedagang,
-                        'komoditas'    => $kios->komoditas,
-                        'status'       => $kios->status,
-                        'category'     => $kios->category?->name,
-                        'color'        => $kios->category?->color_hex ?? '#0057A8',
+                        'id'            => $kios->id,
+                        'nomor'         => $kios->nomor,
+                        'nama_pedagang' => $kios->nama_pedagang,
+                        'komoditas'     => $kios->komoditas,
+                        'status'        => $kios->status,
+                        'category'      => $kios->category?->name,
+                        'color'         => $kios->category?->color_hex ?? '#0057A8',
+                        'luas'          => $kios->luas,
+                        'keterangan'    => $kios->keterangan,
                     ],
                 ];
             });
