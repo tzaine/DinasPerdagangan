@@ -28,7 +28,7 @@ class KiosController extends Controller
             });
         }
 
-        $kios = $query->orderBy('pasar_id')->orderByRaw('CAST(nomor AS UNSIGNED)')
+        $kios = $query->orderByRaw('LENGTH(nomor) ASC, nomor ASC')
             ->paginate($request->per_page ?? 20);
 
         return response()->json($kios);

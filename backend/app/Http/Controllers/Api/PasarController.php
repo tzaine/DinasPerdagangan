@@ -32,7 +32,7 @@ class PasarController extends Controller
     {
         $kios = $pasar->kios()
             ->with('category')
-            ->orderBy('nomor')
+            ->orderByRaw('LENGTH(nomor) ASC, nomor ASC')
             ->get();
 
         return response()->json([
