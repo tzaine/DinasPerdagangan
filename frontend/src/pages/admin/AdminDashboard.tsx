@@ -15,7 +15,7 @@ export default function AdminDashboard() {
   return (
     <>
       <div className="admin-topbar">
-        <h1>📊 Dashboard Admin</h1>
+        <h1> Dashboard Admin</h1>
         <span style={{ fontSize: 13, color: "#94a3b8" }}>
           Ringkasan Data Real-time
         </span>
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
         </div>
         <div className="table-card">
           <div className="table-header">
-            <h2>📋 Status Per Pasar</h2>
+            <h2>Status Per Pasar</h2>
           </div>
           <table>
             <thead>
