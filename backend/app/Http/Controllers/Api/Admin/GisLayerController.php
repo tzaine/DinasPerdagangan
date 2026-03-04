@@ -601,14 +601,14 @@ class GisLayerController extends Controller
             if (empty($props)) continue;
 
             // Try to figure out the Kios Number from common fields
-            $nomor = $props['NomorKios'] ?? $props['No_Lapak'] ?? $props['no_kios'] ?? $props['nomor'] ?? null;
+            $nomor = $props['NomorKios'] ?? $props['No_Lapak'] ?? $props['Nomor_Lapak'] ?? $props['no_kios'] ?? $props['nomor'] ?? null;
             if (!$nomor) {
                 // Autogenerate if missing, but it's risky. Let's try OBJECTID.
                 $nomor = $props['OBJECTID'] ?? uniqid('K-');
             }
 
             // Figure out Pedagang
-            $pedagang = $props['NamaPemilik'] ?? $props['Kepemilikan'] ?? $props['nama_pedagang'] ?? null;
+            $pedagang = $props['NamaPemilik'] ?? $props['Pemilik'] ?? $props['Kepemilikan'] ?? $props['nama_pedagang'] ?? null;
 
             // Figure out Komoditas and Category
             $komoditas = $props['Komoditi'] ?? $props['komoditas'] ?? null;

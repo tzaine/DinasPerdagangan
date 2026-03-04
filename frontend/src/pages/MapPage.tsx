@@ -6,6 +6,7 @@ import {
   Popup,
   GeoJSON,
   useMap,
+  useMapEvents,
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -52,6 +53,32 @@ function FlyTo({ lat, lng }: { lat: number; lng: number }) {
 }
 
 // Auto-fit map bounds to GIS layer data
+const LABEL_MIN_ZOOM = 18;
+
+function ZoomWatcher() {
+  const map = useMapEvents({
+    zoom: () => {
+      const container = map.getContainer();
+      if (map.getZoom() >= LABEL_MIN_ZOOM) {
+        container.classList.remove('hide-kios-labels');
+      } else {
+        container.classList.add('hide-kios-labels');
+      }
+    },
+  });
+
+  useEffect(() => {
+    const container = map.getContainer();
+    if (map.getZoom() >= LABEL_MIN_ZOOM) {
+      container.classList.remove('hide-kios-labels');
+    } else {
+      container.classList.add('hide-kios-labels');
+    }
+  }, [map]);
+
+  return null;
+}
+
 function FitToGisLayers({ layers }: { layers: GisLayerData[] }) {
   const map = useMap();
   const [fitted, setFitted] = useState(false);
@@ -185,16 +212,12 @@ export default function MapPage() {
     klitikan: { emoji: "🍊", color: "#7c3aed" },
   };
 
-  const getStyle = (feature: any) => {
-    const color = feature?.properties?.color ?? "#0057A8";
-    const status = feature?.properties?.status;
-    const opacity =
-      status === "empty" ? 0.25 : status === "inactive" ? 0.5 : 0.75;
+  const getStyle = (_feature: any) => {
     return {
-      fillColor: color,
+      fillColor: "#0057A8",
       color: "#fff",
       weight: 1.5,
-      fillOpacity: opacity,
+      fillOpacity: 0.6,
     };
   };
 
@@ -211,6 +234,26 @@ export default function MapPage() {
     if (feature.properties) {
       const p = feature.properties;
       const val = (v: any) => (v != null && v !== "" ? v : "—");
+
+      const rows = [
+        ["ID Kios", val(p.id), true],
+        ["No. Kios", val(p.nomor), true],
+        ["Pedagang", val(p.nama_pedagang), false],
+        ["Komoditas", val(p.komoditas), false],
+        ["Kategori", val(p.category), false],
+        ["Luas (m²)", val(p.luas), false],
+        ["Keterangan", val(p.keterangan), false],
+      ]
+        .map(
+          ([label, value, bold]) =>
+            `<tr>
+              <td style="font-weight:600;padding:4px 12px 4px 0;color:#475569;font-size:12px;white-space:nowrap;">${label}</td>
+              <td style="font-size:12px;color:#1e293b;${bold ? 'font-weight:700;' : ''}">${value}</td>
+            </tr>`,
+        )
+        .join("");
+
+      // Status badge
       const statusLabel =
         p.status === "active" ? "Aktif" : p.status === "inactive" ? "Tidak Aktif" : "Kosong";
       const statusColor =
@@ -218,62 +261,114 @@ export default function MapPage() {
       const statusTextColor =
         p.status === "active" ? "#16a34a" : p.status === "inactive" ? "#dc2626" : "#64748b";
 
-      const rows = [
-        ["No. Kios", val(p.nomor)],
-        ["Pedagang", val(p.nama_pedagang)],
-        ["Komoditas", val(p.komoditas)],
-        ["Kategori", val(p.category)],
-      ]
-        .map(
-          ([label, value]) =>
-            `<tr>
-              <td style="font-weight:600;padding:4px 12px 4px 0;color:#475569;font-size:12px;white-space:nowrap;">${label}</td>
-              <td style="font-size:12px;color:#1e293b;">${value}</td>
-            </tr>`,
-        )
-        .join("");
+      // Keterangan badge
+      const keteranganBadge = p.keterangan
+        ? `<span style="display:inline-block;margin-top:4px;margin-left:4px;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:600;background:#dbeafe;color:#1d4ed8;">${p.keterangan}</span>`
+        : "";
 
       layer.bindPopup(`
-        <div style="min-width:200px; font-family:Inter,sans-serif;">
+        <div style="min-width:220px; max-height:340px; overflow-y:auto; font-family:Inter,sans-serif;">
           <div style="font-weight:700;font-size:14px;color:#0057A8;margin-bottom:8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">
             🏪 Detail Kios
           </div>
           <table style="border-collapse:collapse;width:100%;">${rows}</table>
-          <span style="
-            display:inline-block;margin-top:8px;padding:3px 12px;
-            border-radius:999px;font-size:11px;font-weight:600;
-            background:${statusColor};color:${statusTextColor};
-          ">${statusLabel}</span>
+          <div style="margin-top:8px;">
+            <span style="
+              display:inline-block;padding:3px 12px;
+              border-radius:999px;font-size:11px;font-weight:600;
+              background:${statusColor};color:${statusTextColor};
+            ">${statusLabel}</span>
+            ${keteranganBadge}
+          </div>
         </div>
       `);
+
+      // Permanent label showing kios number on polygon
+      if (p.nomor) {
+        (layer as any).bindTooltip(String(p.nomor), {
+          permanent: true,
+          direction: 'center',
+          className: 'kios-label',
+        });
+      }
     }
   };
 
   const onEachGisFeature = (feature: any, layer: L.Layer) => {
     if (feature.properties) {
       const props = feature.properties;
+
+      // Human-readable field labels for known GeoJSON fields
       const labelMap: Record<string, string> = {
-        No_Lapak: "No. Lapak",
-        Kepemilikan: "Pedagang",
-        Komoditi: "Komoditi",
-        KategoriKomoditi: "Kategori",
+        NomorKios:         "No. Kios",
+        No_Lapak:          "No. Lapak",
+        NamaPemilik:       "Nama Pemilik",
+        Pemilik:           "Pemilik",
+        Kepemilikan:       "Kepemilikan",
+        Komoditi:          "Komoditi",
+        KategoriKomoditi:  "Kategori",
+        Ukuran:            "Ukuran",
+        Luas:              "Luas (m²)",
+        luas:              "Luas (m²)",
+        Keterangan:        "Keterangan",
+        keterangan:        "Keterangan",
+        Kode:              "Kode",
+        Foto:              "Foto",
+        OBJECTID:          "ID Polygon",
       };
-      const hiddenKeys = ["Shape_Length", "Shape_Area", "OBJECTID", "Shape_Leng"];
-      const rows = Object.entries(props)
-        .filter(([k]) => !hiddenKeys.includes(k))
-        .map(([k, v]) => {
+
+      // Fields to hide (technical/geometry fields)
+      const hiddenKeys = new Set(["Shape_Length", "Shape_Area", "Shape_Leng", "Foto"]);
+
+      // Fields to show first, in order
+      const priorityKeys = ["OBJECTID", "NomorKios", "No_Lapak", "NamaPemilik",
+        "Pemilik", "Kepemilikan", "KategoriKomoditi", "Komoditi", "Ukuran", "Luas", "luas",
+        "Kode", "Keterangan", "keterangan"];
+
+      const allKeys = [
+        ...priorityKeys.filter(k => k in props),
+        ...Object.keys(props).filter(k => !priorityKeys.includes(k) && !hiddenKeys.has(k)),
+      ];
+
+      const rows = allKeys
+        .filter(k => !hiddenKeys.has(k))
+        .map(k => {
           const label = labelMap[k] ?? k;
+          const v = props[k];
           const val = v != null && v !== "" ? v : "—";
-          return `<tr><td style="font-weight:600;padding:4px 12px 4px 0;color:#475569;font-size:12px;white-space:nowrap;">${label}</td><td style="font-size:12px;color:#1e293b;">${val}</td></tr>`;
+          const isBold = k === "OBJECTID" || k === "NomorKios" || k === "No_Lapak";
+          return `<tr>
+            <td style="font-weight:600;padding:4px 12px 4px 0;color:#475569;font-size:12px;white-space:nowrap;">${label}</td>
+            <td style="font-size:12px;color:#1e293b;${isBold ? 'font-weight:700;' : ''}">${val}</td>
+          </tr>`;
         })
         .join("");
 
       if (rows) {
+        // Keterangan badge (like status badge in DB kios popup)
+        const keterangan = props["Keterangan"] ?? props["keterangan"] ?? null;
+        const keteranganBadge = keterangan
+          ? `<span style="display:inline-block;margin-top:8px;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:600;background:#dbeafe;color:#1d4ed8;">${keterangan}</span>`
+          : "";
+
         layer.bindPopup(`
-          <div style="min-width:200px; max-height:300px; overflow-y:auto; font-family:Inter,sans-serif;">
-            <table style="border-collapse:collapse;">${rows}</table>
+          <div style="min-width:220px; max-height:340px; overflow-y:auto; font-family:Inter,sans-serif;">
+            <div style="font-weight:700;font-size:14px;color:#0057A8;margin-bottom:8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">🏪 Detail Kios</div>
+            <table style="border-collapse:collapse;width:100%;">${rows}</table>
+            ${keteranganBadge}
           </div>
         `);
+      }
+
+      // Permanent label showing kios nomor on GIS polygon
+      const nomorLabel =
+        props["NomorKios"] ?? props["No_Lapak"] ?? props["nomor"] ?? props["OBJECTID"] ?? null;
+      if (nomorLabel != null) {
+        (layer as any).bindTooltip(String(nomorLabel), {
+          permanent: true,
+          direction: 'center',
+          className: 'kios-label',
+        });
       }
     }
   };
@@ -501,8 +596,9 @@ export default function MapPage() {
               </div>
 
               {flyTarget && <FlyTo lat={flyTarget.lat} lng={flyTarget.lng} />}
+              <ZoomWatcher />
 
-              {/* Market Markers */}
+              {/* Market Markers - offset south to avoid covering polygons */}
               {activePasars.map((p) => {
                 const cfg = PASAR_CONFIG[p.slug] ?? {
                   emoji: "🏪",
@@ -511,8 +607,9 @@ export default function MapPage() {
                 return (
                   <Marker
                     key={p.id}
-                    position={[p.latitude, p.longitude]}
+                    position={[p.latitude - 0.0005, p.longitude]}
                     icon={createCustomIcon(cfg.emoji, cfg.color)}
+                    zIndexOffset={-100}
                   >
                     <Popup>
                       <div
@@ -560,11 +657,10 @@ export default function MapPage() {
                       key={`gis-${l.id}-${visibleLayers.has(l.id)}-${l.geojson.features?.length}`}
                       data={l.geojson as any}
                       style={() => ({
-                        fillColor: l.color ?? "#0057A8",
-                        color: l.color ?? "#0057A8",
+                        fillColor: "#0057A8",
+                        color: "#fff",
                         weight: 1.5,
-                        fillOpacity: 0,      // transparent fill — let kios colors show
-                        opacity: 0.5,
+                        fillOpacity: 0.6,
                       })}
                       onEachFeature={onEachGisFeature}
                     />

@@ -55,22 +55,6 @@ export default function KiosManagement() {
   }, [fetchKios]);
   useEffect(() => {
     api.get("/pasars").then((r) => setPasars(r.data));
-    api
-      .get("/admin/kios?per_page=1")
-      .then(() => {})
-      .catch(() => {});
-    // Fetch categories via kios list
-    api
-      .get<PaginatedResponse<Kios>>("/admin/kios", { params: { per_page: 1 } })
-      .then(() => {})
-      .catch(() => {});
-    // inline fetch categories
-    fetch("http://localhost:8000/api/admin/kios?with_categories=1", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-        Accept: "application/json",
-      },
-    }).catch(() => {});
   }, []);
 
   const openCreate = () => {
@@ -271,6 +255,7 @@ export default function KiosManagement() {
                     title="Pilih semua"
                   />
                 </th>
+                <th style={{ width: 50, color: "#94a3b8", fontWeight: 500, fontSize: 11 }}>ID</th>
                 <th>No. Kios</th>
                 <th>Pasar</th>
                 <th>Pedagang</th>
@@ -284,7 +269,7 @@ export default function KiosManagement() {
               {loading ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={9}
                     style={{
                       textAlign: "center",
                       padding: 32,
@@ -297,7 +282,7 @@ export default function KiosManagement() {
               ) : kiosList.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={9}
                     style={{
                       textAlign: "center",
                       padding: 32,
@@ -320,6 +305,7 @@ export default function KiosManagement() {
                         style={{ cursor: "pointer", accentColor: "#0057A8" }}
                       />
                     </td>
+                    <td style={{ color: "#94a3b8", fontSize: 11, fontWeight: 500 }}>#{k.id}</td>
                     <td>
                       <strong>{k.nomor}</strong>
                     </td>
