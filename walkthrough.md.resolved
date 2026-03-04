@@ -1,0 +1,121 @@
+# GIS Dinas Perdagangan Semarang – Walkthrough
+
+## ✅ Build Verification
+
+Frontend production build: **✓ 1855 modules transformed in 41s**
+
+| Chunk | Size | Status |
+|---|---|---|
+| `leaflet` | 154KB | ✅ Lazy (MapPage only) |
+| `chartjs` | 164KB | ✅ Lazy (DashboardPage) |
+| `admin` | 62KB | ✅ Separate admin bundle |
+| `vendor` | 48KB | ✅ React + Router core |
+
+---
+
+## 🗂️ Project Structure
+
+```
+D:\Peta-Sebaran\
+├── backend/          ← Laravel 11 API  (php artisan serve → :8000)
+├── frontend/         ← React Vite SPA  (npm run dev → :5173)
+└── gis-tools/        ← Python GDB → GeoJSON converter
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Database Setup
+
+```sql
+CREATE DATABASE peta_sebaran CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+> If your MySQL root password is not empty, update [backend/.env](file:///D:/Peta-Sebaran/backend/.env) → `DB_PASSWORD=yourpassword`
+
+### 2. Backend
+
+```bash
+cd D:\Peta-Sebaran\backend
+
+# Run migrations + seed demo data
+php artisan migrate --seed
+
+# Start dev server
+php artisan serve        # → http://localhost:8000
+```
+
+**Default credentials seeded:**
+- `admin@dinsemarang.go.id` / `password`
+- `staff@dinsemarang.go.id` / `password`
+
+### 3. Frontend
+
+```bash
+cd D:\Peta-Sebaran\frontend
+npm run dev              # → http://localhost:5173
+```
+
+---
+
+## 🌐 Pages
+
+| URL | Description |
+|---|---|
+| `http://localhost:5173/` | Landing page with hero & stat cards |
+| `/dashboard` | Public charts (Chart.js doughnut + bar) |
+| `/peta` | Interactive Leaflet map with markers |
+| `/admin/login` | Admin login (Sanctum token) |
+| `/admin/dashboard` | Admin stats overview |
+| `/admin/kios` | Kiosk CRUD (table + modal) |
+| `/admin/layers` | GIS layer management + GeoJSON upload |
+
+---
+
+## 🗺️ GDB → GeoJSON Conversion
+
+```bash
+cd D:\Peta-Sebaran\gis-tools
+
+# List layers in GDB
+python convert_gdb_to_geojson.py --input "path/to/file.gdb" --list
+
+# Convert a layer
+python convert_gdb_to_geojson.py \
+  --input  "path/to/file.gdb" \
+  --output "./geojson" \
+  --layer  "KiosRejomulyo"
+```
+
+Then upload the `.geojson` file via **Admin → Layer GIS → Upload GeoJSON (📤)**.
+
+> Requires: `pip install gdal` OR `pip install geopandas fiona`
+
+---
+
+## 🔑 Key API Endpoints
+
+```
+POST  /api/auth/login              → returns Sanctum token
+GET   /api/dashboard/stats         → public stats for charts
+GET   /api/pasars                  → market list
+GET   /api/pasars/{id}/geojson     → GeoJSON polygons for map
+
+# Admin (Bearer token required)
+GET/POST/PUT/DELETE  /api/admin/kios
+POST                 /api/admin/layers/{id}/upload   ← GeoJSON file
+```
+
+---
+
+## ✨ Features Implemented
+
+- [x] **Interactive Map** — Leaflet.js, custom emoji markers, GeoJSON polygon overlays, fly-to animation, kiosk detail popups
+- [x] **Public Dashboard** — Chart.js doughnut (occupancy), bar (per-pasar), horizontal bar (categories), occupancy progress bars
+- [x] **Admin CRUD** — Paginated kiosk table, search/filter, create/edit modal, delete with confirm
+- [x] **GIS Layer Admin** — Create layer, toggle active, upload GeoJSON file, delete
+- [x] **Sanctum Auth** — JWT-less token auth, Zustand persist store, protected routes
+- [x] **Code Splitting** — `React.lazy()` + Vite `manualChunks` for Leaflet, Chart.js, admin bundle
+- [x] **GDB Converter** — Python script with GDAL/geopandas, WGS84 reprojection, CLI
+- [x] **Semarang Theme** — Blue `#0057A8` palette, Inter font, glassmorphism, hover animations

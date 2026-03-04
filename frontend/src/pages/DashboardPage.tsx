@@ -178,7 +178,7 @@ export default function DashboardPage() {
         {/* Charts Row 1 */}
         <div className="charts-grid" style={{ marginBottom: 32 }}>
           <div className="chart-card">
-            <h3>🏪 Status Occupancy Kios</h3>
+            <h3>Status Occupancy Kios</h3>
             <p>Distribusi status seluruh kios</p>
             <div style={{ maxWidth: 280, margin: "0 auto" }}>
               <Doughnut
@@ -199,7 +199,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="chart-card">
-            <h3>📊 Occupancy Per Pasar</h3>
+            <h3>Occupancy Per Pasar</h3>
             <p>Perbandingan status kios antar pasar</p>
             <Bar
               data={pasarData}
@@ -222,7 +222,7 @@ export default function DashboardPage() {
 
         {/* Charts Row 2 */}
         <div className="chart-card" style={{ marginBottom: 32 }}>
-          <h3>🗂️ Distribusi Kategori Kios Aktif</h3>
+          <h3>Distribusi Kategori Kios Aktif</h3>
           <p>Jumlah kios aktif berdasarkan jenis komoditas</p>
           <Bar
             data={categoryData}
@@ -238,7 +238,7 @@ export default function DashboardPage() {
         {/* Pasar Detail Table */}
         <div className="table-card">
           <div className="table-header">
-            <h2>📋 Ringkasan Per Pasar</h2>
+            <h2>Ringkasan Per Pasar</h2>
           </div>
           <table>
             <thead>

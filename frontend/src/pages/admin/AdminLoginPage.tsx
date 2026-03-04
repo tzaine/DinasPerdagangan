@@ -101,17 +101,6 @@ export default function AdminLoginPage() {
             {loading ? "Memproses..." : "Masuk ke Dashboard"}
           </button>
         </form>
-
-        <p
-          style={{
-            textAlign: "center",
-            fontSize: 12,
-            color: "#94a3b8",
-            marginTop: 20,
-          }}
-        >
-          Demo: admin@dinsemarang.go.id / password
-        </p>
       </div>
     </div>
   );
