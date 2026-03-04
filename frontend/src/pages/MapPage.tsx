@@ -303,6 +303,7 @@ export default function MapPage() {
         NomorKios:         "No. Kios",
         No_Lapak:          "No. Lapak",
         NamaPemilik:       "Nama Pemilik",
+        Pemilik:           "Pemilik",
         Kepemilikan:       "Kepemilikan",
         Komoditi:          "Komoditi",
         KategoriKomoditi:  "Kategori",
@@ -321,7 +322,7 @@ export default function MapPage() {
 
       // Fields to show first, in order
       const priorityKeys = ["OBJECTID", "NomorKios", "No_Lapak", "NamaPemilik",
-        "Kepemilikan", "KategoriKomoditi", "Komoditi", "Ukuran", "Luas", "luas",
+        "Pemilik", "Kepemilikan", "KategoriKomoditi", "Komoditi", "Ukuran", "Luas", "luas",
         "Kode", "Keterangan", "keterangan"];
 
       const allKeys = [

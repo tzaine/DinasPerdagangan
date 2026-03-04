@@ -55,22 +55,6 @@ export default function KiosManagement() {
   }, [fetchKios]);
   useEffect(() => {
     api.get("/pasars").then((r) => setPasars(r.data));
-    api
-      .get("/admin/kios?per_page=1")
-      .then(() => {})
-      .catch(() => {});
-    // Fetch categories via kios list
-    api
-      .get<PaginatedResponse<Kios>>("/admin/kios", { params: { per_page: 1 } })
-      .then(() => {})
-      .catch(() => {});
-    // inline fetch categories
-    fetch("http://localhost:8000/api/admin/kios?with_categories=1", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-        Accept: "application/json",
-      },
-    }).catch(() => {});
   }, []);
 
   const openCreate = () => {

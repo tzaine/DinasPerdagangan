@@ -30,10 +30,13 @@ class Pasar extends Model
 
     public function getStatsAttribute(): array
     {
-        $total    = $this->kios()->count();
-        $active   = $this->kios()->where('status', 'active')->count();
-        $inactive = $this->kios()->where('status', 'inactive')->count();
-        $empty    = $this->kios()->where('status', 'empty')->count();
+        // Use already-loaded relation if available, otherwise load once
+        $kios = $this->relationLoaded('kios') ? $this->kios : $this->kios()->get();
+
+        $total    = $kios->count();
+        $active   = $kios->where('status', 'active')->count();
+        $inactive = $kios->where('status', 'inactive')->count();
+        $empty    = $kios->where('status', 'empty')->count();
 
         return compact('total', 'active', 'inactive', 'empty');
     }
