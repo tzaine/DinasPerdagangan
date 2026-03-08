@@ -155,7 +155,7 @@ export default function MapPage() {
           .then((gr) => {
             setGeojson((prev) => ({ ...prev, [p.id]: gr.data }));
           })
-          .catch(() => {});
+          .catch(() => { });
       });
     });
 
@@ -181,12 +181,12 @@ export default function MapPage() {
   }, []);
 
   const PASAR_CONFIG: Record<string, { emoji: string; color: string }> = {
-    rejomulyo: { emoji: "🐟", color: "#0057A8" },
-    klitikan: { emoji: "🍊", color: "#7c3aed" },
+    rejomulyo: { emoji: "🐟", color: "#7B1113" },
+    klitikan: { emoji: "🍊", color: "#D4A843" },
   };
 
   const getStyle = (feature: any) => {
-    const color = feature?.properties?.color ?? "#0057A8";
+    const color = feature?.properties?.color ?? "#7B1113";
     const status = feature?.properties?.status;
     const opacity =
       status === "empty" ? 0.25 : status === "inactive" ? 0.5 : 0.75;
@@ -200,7 +200,7 @@ export default function MapPage() {
 
   const getGisLayerStyle = (layer: GisLayerData) => {
     return (_feature: any) => ({
-      fillColor: layer.color ?? "#0057A8",
+      fillColor: layer.color ?? "#7B1113",
       color: "#333",
       weight: 1.5,
       fillOpacity: layer.opacity ?? 0.6,
@@ -235,7 +235,7 @@ export default function MapPage() {
 
       layer.bindPopup(`
         <div style="min-width:200px; font-family:Inter,sans-serif;">
-          <div style="font-weight:700;font-size:14px;color:#0057A8;margin-bottom:8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">
+          <div style="font-weight:700;font-size:14px;color:#7B1113;margin-bottom:8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">
             🏪 Detail Kios
           </div>
           <table style="border-collapse:collapse;width:100%;">${rows}</table>
@@ -328,7 +328,7 @@ export default function MapPage() {
             {activePasars.map((p) => {
               const cfg = PASAR_CONFIG[p.slug] ?? {
                 emoji: "🏪",
-                color: "#0057A8",
+                color: "#7B1113",
               };
               return (
                 <button
@@ -489,7 +489,7 @@ export default function MapPage() {
                     style={{
                       padding: "6px 12px", borderRadius: 6, fontSize: 12,
                       fontWeight: 600, cursor: "pointer", border: "none",
-                      background: basemap === key ? "#0057A8" : "transparent",
+                      background: basemap === key ? "#7B1113" : "transparent",
                       color: basemap === key ? "#fff" : "#374151",
                       transition: "all 0.15s",
                       whiteSpace: "nowrap",
@@ -506,7 +506,7 @@ export default function MapPage() {
               {activePasars.map((p) => {
                 const cfg = PASAR_CONFIG[p.slug] ?? {
                   emoji: "🏪",
-                  color: "#0057A8",
+                  color: "#7B1113",
                 };
                 return (
                   <Marker
@@ -560,8 +560,8 @@ export default function MapPage() {
                       key={`gis-${l.id}-${visibleLayers.has(l.id)}-${l.geojson.features?.length}`}
                       data={l.geojson as any}
                       style={() => ({
-                        fillColor: l.color ?? "#0057A8",
-                        color: l.color ?? "#0057A8",
+                        fillColor: l.color ?? "#7B1113",
+                        color: l.color ?? "#7B1113",
                         weight: 1.5,
                         fillOpacity: 0,      // transparent fill — let kios colors show
                         opacity: 0.5,

@@ -13,6 +13,7 @@ import { Doughnut, Bar } from "react-chartjs-2";
 import { Store, TrendingUp, MapPin, Activity, Percent } from "lucide-react";
 import api from "../lib/api";
 import type { DashboardStats } from "../types";
+import { useScrollReveal } from "../hooks/useScrollReveal";
 
 ChartJS.register(
   ArcElement,
@@ -27,6 +28,7 @@ ChartJS.register(
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const revealRef = useScrollReveal();
 
   useEffect(() => {
     api
@@ -104,10 +106,10 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="section">
+    <div className="section" ref={revealRef}>
       <div className="container">
         <div
-          className="section-header"
+          className="section-header reveal"
           style={{ textAlign: "left", marginBottom: 32 }}
         >
           <span className="section-label">Statistik Real-time</span>
@@ -123,11 +125,11 @@ export default function DashboardPage() {
             {
               label: "Total Kios",
               value: s?.total_kios,
-              icon: <Store size={22} strokeWidth={2.5} color="#1e3a8a" />,
-              bg: "#eef2ff",
+              icon: <Store size={22} strokeWidth={2.5} color="#7B1113" />,
+              bg: "#fdf2f2",
               badge: `${s?.total_pasars} Pasar`,
-              badgeBg: "#fef3c7",
-              badgeColor: "#b45309",
+              badgeBg: "#fefbf0",
+              badgeColor: "#B8912E",
             },
             {
               label: "Kios Aktif",
@@ -141,23 +143,23 @@ export default function DashboardPage() {
             {
               label: "Tingkat Hunian",
               value: `${s?.occupancy_rate ?? 0}%`,
-              icon: <Percent size={22} strokeWidth={2.5} color="#6d28d9" />,
-              bg: "#f5f3ff",
+              icon: <Percent size={22} strokeWidth={2.5} color="#D4A843" />,
+              bg: "#fefbf0",
               badge: "Occupancy",
-              badgeBg: "#ede9fe",
-              badgeColor: "#5b21b6",
+              badgeBg: "#fef8e7",
+              badgeColor: "#B8912E",
             },
             {
               label: "Kios Kosong",
               value: s?.empty_kios,
-              icon: <MapPin size={22} strokeWidth={2.5} color="#ea580c" />,
-              bg: "#fff7ed",
+              icon: <MapPin size={22} strokeWidth={2.5} color="#A52528" />,
+              bg: "#fdf2f2",
               badge: "Tersedia",
-              badgeBg: "#ffedd5",
-              badgeColor: "#c2410c",
+              badgeBg: "#fefbf0",
+              badgeColor: "#B8912E",
             },
           ].map((c, i) => (
-            <div key={i} className="stat-card">
+            <div key={i} className="stat-card reveal" style={{ "--reveal-delay": `${(i + 1) * 0.1}s` } as React.CSSProperties}>
               <div className="stat-card-icon" style={{ background: c.bg }}>
                 {c.icon}
               </div>
@@ -176,7 +178,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Charts Row 1 */}
-        <div className="charts-grid" style={{ marginBottom: 32 }}>
+        <div className="charts-grid reveal" style={{ marginBottom: 32 }}>
           <div className="chart-card">
             <h3>🏪 Status Occupancy Kios</h3>
             <p>Distribusi status seluruh kios</p>
@@ -221,7 +223,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Charts Row 2 */}
-        <div className="chart-card" style={{ marginBottom: 32 }}>
+        <div className="chart-card reveal" style={{ marginBottom: 32, "--reveal-delay": "0.1s" } as React.CSSProperties}>
           <h3>🗂️ Distribusi Kategori Kios Aktif</h3>
           <p>Jumlah kios aktif berdasarkan jenis komoditas</p>
           <Bar
@@ -236,7 +238,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Pasar Detail Table */}
-        <div className="table-card">
+        <div className="table-card reveal">
           <div className="table-header">
             <h2>📋 Ringkasan Per Pasar</h2>
           </div>
