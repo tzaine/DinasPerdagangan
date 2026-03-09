@@ -103,22 +103,6 @@ export default function AdminLoginPage() {
             {loading ? "Memproses..." : "Masuk ke Dashboard"}
           </button>
         </form>
-<<<<<<< HEAD
-=======
-
-        <p
-          className="reveal"
-          style={{
-            textAlign: "center",
-            fontSize: 12,
-            color: "#94a3b8",
-            marginTop: 20,
-            "--reveal-delay": "0.3s",
-          } as React.CSSProperties}
-        >
-          Demo: admin@dinsemarang.go.id / password
-        </p>
->>>>>>> frontendjeje
       </div>
     </div>
   );

@@ -212,20 +212,16 @@ export default function MapPage() {
     klitikan: { emoji: "🍊", color: "#D4A843" },
   };
 
-<<<<<<< HEAD
-  const getStyle = (_feature: any) => {
-=======
   const getStyle = (feature: any) => {
     const color = feature?.properties?.color ?? "#7B1113";
     const status = feature?.properties?.status;
     const opacity =
       status === "empty" ? 0.25 : status === "inactive" ? 0.5 : 0.75;
->>>>>>> frontendjeje
     return {
-      fillColor: "#0057A8",
+      fillColor: color,
       color: "#fff",
       weight: 1.5,
-      fillOpacity: 0.6,
+      fillOpacity: opacity,
     };
   };
 
@@ -275,13 +271,8 @@ export default function MapPage() {
         : "";
 
       layer.bindPopup(`
-<<<<<<< HEAD
-        <div style="min-width:220px; max-height:340px; overflow-y:auto; font-family:Inter,sans-serif;">
-          <div style="font-weight:700;font-size:14px;color:#0057A8;margin-bottom:8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">
-=======
         <div style="min-width:200px; font-family:Inter,sans-serif;">
           <div style="font-weight:700;font-size:14px;color:#7B1113;margin-bottom:8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">
->>>>>>> frontendjeje
             🏪 Detail Kios
           </div>
           <table style="border-collapse:collapse;width:100%;">${rows}</table>
@@ -670,13 +661,8 @@ export default function MapPage() {
                       key={`gis-${l.id}-${visibleLayers.has(l.id)}-${l.geojson.features?.length}`}
                       data={l.geojson as any}
                       style={() => ({
-<<<<<<< HEAD
-                        fillColor: "#0057A8",
-                        color: "#fff",
-=======
                         fillColor: l.color ?? "#7B1113",
                         color: l.color ?? "#7B1113",
->>>>>>> frontendjeje
                         weight: 1.5,
                         fillOpacity: 0.6,
                       })}
