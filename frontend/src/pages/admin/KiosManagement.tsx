@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Plus, Pencil, Trash2, Search, X } from "lucide-react";
 import api from "../../lib/api";
 import type { Kios, KiosCategory, Pasar, PaginatedResponse } from "../../types";
+import { useScrollReveal } from "../../hooks/useScrollReveal";
 
 const EMPTY_FORM = {
   pasar_id: "",
@@ -30,6 +31,7 @@ export default function KiosManagement() {
   const [saving, setSaving] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const revealRef = useScrollReveal();
 
   const fetchKios = useCallback(() => {
     setLoading(true);
@@ -57,20 +59,20 @@ export default function KiosManagement() {
     api.get("/pasars").then((r) => setPasars(r.data));
     api
       .get("/admin/kios?per_page=1")
-      .then(() => {})
-      .catch(() => {});
+      .then(() => { })
+      .catch(() => { });
     // Fetch categories via kios list
     api
       .get<PaginatedResponse<Kios>>("/admin/kios", { params: { per_page: 1 } })
-      .then(() => {})
-      .catch(() => {});
+      .then(() => { })
+      .catch(() => { });
     // inline fetch categories
     fetch("http://localhost:8000/api/admin/kios?with_categories=1", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
         Accept: "application/json",
       },
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
   const openCreate = () => {
@@ -156,8 +158,8 @@ export default function KiosManagement() {
     setForm((p) => ({ ...p, [k]: v }));
 
   return (
-    <>
-      <div className="admin-topbar">
+    <div ref={revealRef}>
+      <div className="admin-topbar reveal">
         <h1>🏪 Manajemen Kios</h1>
         <button
           className="btn-sm btn-blue"
@@ -175,7 +177,7 @@ export default function KiosManagement() {
         </button>
       </div>
       <div className="admin-content">
-        <div className="table-card">
+        <div className="table-card reveal" style={{ "--reveal-delay": "0.1s" } as React.CSSProperties}>
           <div className="table-header">
             <h2>Daftar Kios ({total})</h2>
             <div className="table-controls">
@@ -553,6 +555,6 @@ export default function KiosManagement() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

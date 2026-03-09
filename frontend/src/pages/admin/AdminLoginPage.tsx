@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Building2, Lock, Mail } from "lucide-react";
 import api from "../../lib/api";
 import { useAuthStore } from "../../store/authStore";
+import { useScrollReveal } from "../../hooks/useScrollReveal";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("admin@dinsemarang.go.id");
@@ -11,6 +12,7 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
+  const revealRef = useScrollReveal();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +25,7 @@ export default function AdminLoginPage() {
     } catch (err: any) {
       setError(
         err.response?.data?.errors?.email?.[0] ??
-          "Login gagal. Periksa email dan password.",
+        "Login gagal. Periksa email dan password.",
       );
     } finally {
       setLoading(false);
@@ -31,9 +33,9 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="login-page">
+    <div className="login-page" ref={revealRef}>
       <div className="login-card">
-        <div className="login-logo">
+        <div className="login-logo reveal">
           <div className="logo-icon">
             <Building2 size={28} />
           </div>
@@ -43,7 +45,7 @@ export default function AdminLoginPage() {
 
         {error && <div className="alert alert-error">{error}</div>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="reveal" style={{ "--reveal-delay": "0.15s" } as React.CSSProperties}>
           <div className="form-group">
             <label className="form-label">Email</label>
             <div style={{ position: "relative" }}>
@@ -103,12 +105,14 @@ export default function AdminLoginPage() {
         </form>
 
         <p
+          className="reveal"
           style={{
             textAlign: "center",
             fontSize: 12,
             color: "#94a3b8",
             marginTop: 20,
-          }}
+            "--reveal-delay": "0.3s",
+          } as React.CSSProperties}
         >
           Demo: admin@dinsemarang.go.id / password
         </p>
