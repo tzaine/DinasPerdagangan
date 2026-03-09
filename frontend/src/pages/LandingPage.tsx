@@ -10,45 +10,47 @@ import {
 } from "lucide-react";
 import api from "../lib/api";
 import type { DashboardStats, Pasar } from "../types";
+import { useScrollReveal } from "../hooks/useScrollReveal";
 
 export default function LandingPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [pasars, setPasars] = useState<Pasar[]>([]);
+  const revealRef = useScrollReveal();
 
   useEffect(() => {
     api
       .get("/dashboard/stats")
       .then((r) => setStats(r.data))
-      .catch(() => {});
+      .catch(() => { });
     api
       .get("/pasars")
       .then((r) => setPasars(r.data))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const summary = stats?.summary;
 
   return (
-    <>
+    <div ref={revealRef}>
       {/* Hero */}
       <section className="hero">
         <div className="container">
           <div className="hero-content">
-            <div className="hero-badge">
+            <div className="hero-badge reveal">
               <Activity size={12} />
               Sistem Informasi Geografis Pasar
             </div>
-            <h1>
+            <h1 className="reveal" style={{ "--reveal-delay": "0.1s" } as React.CSSProperties}>
               Peta Sebaran Pasar
               <br />
               <span>Kota Semarang</span>
             </h1>
-            <p>
+            <p className="reveal" style={{ "--reveal-delay": "0.2s" } as React.CSSProperties}>
               Platform digital pengelolaan data pasar dan kios Dinas Perdagangan
               Kota Semarang. Pantau occupancy, distribusi pedagang, dan sebaran
               geografis secara real-time.
             </p>
-            <div className="hero-actions">
+            <div className="hero-actions reveal" style={{ "--reveal-delay": "0.3s" } as React.CSSProperties}>
               <Link to="/peta" className="btn btn-primary">
                 <MapPin size={16} />
                 Lihat Peta Interaktif
@@ -65,7 +67,7 @@ export default function LandingPage() {
       {/* Pasar Cards */}
       <section className="section">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-label">Kawasan Pasar</span>
             <h2 className="section-title">Pasar yang Dikelola</h2>
             <p className="section-subtitle">
@@ -74,15 +76,19 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="pasar-grid">
-            {pasars.map((p) => (
-              <div key={p.id} className="pasar-card">
+            {pasars.map((p, i) => (
+              <div
+                key={p.id}
+                className="pasar-card reveal"
+                style={{ "--reveal-delay": `${i * 0.15}s` } as React.CSSProperties}
+              >
                 <div
                   className="pasar-card-header"
                   style={{
                     background:
                       p.slug === "rejomulyo"
-                        ? "linear-gradient(135deg, #0057A8, #003f7a)"
-                        : "linear-gradient(135deg, #005BAC, #7c3aed)",
+                        ? "linear-gradient(135deg, #7B1113, #5A0C0E)"
+                        : "linear-gradient(135deg, #8B1A1C, #D4A843)",
                   }}
                 >
                   <span
@@ -137,10 +143,10 @@ export default function LandingPage() {
       <section className="section" style={{ background: "var(--color-white)" }}>
         <div className="container">
           <div className="stats-grid">
-            <div className="stat-card">
+            <div className="stat-card reveal">
               <div
                 className="stat-card-icon"
-                style={{ background: "#eef2ff", color: "#1e3a8a" }} /* Indigo light */
+                style={{ background: "#fdf2f2", color: "#7B1113" }}
               >
                 <Store size={22} strokeWidth={2.5} />
               </div>
@@ -149,16 +155,16 @@ export default function LandingPage() {
                 <p>Total Kios</p>
                 <span
                   className="stat-card-badge"
-                  style={{ background: "#fef3c7", color: "#b45309" }} /* Amber light */
+                  style={{ background: "#fefbf0", color: "#B8912E" }}
                 >
                   {summary?.total_pasars ?? 0} Pasar
                 </span>
               </div>
             </div>
-            <div className="stat-card">
+            <div className="stat-card reveal" style={{ "--reveal-delay": "0.1s" } as React.CSSProperties}>
               <div
                 className="stat-card-icon"
-                style={{ background: "#ecfdf5", color: "#059669" }} /* Emerald light */
+                style={{ background: "#ecfdf5", color: "#059669" }}
               >
                 <TrendingUp size={22} strokeWidth={2.5} />
               </div>
@@ -167,16 +173,16 @@ export default function LandingPage() {
                 <p>Kios Aktif</p>
                 <span
                   className="stat-card-badge"
-                  style={{ background: "#dcfce7", color: "#15803d" }} /* Green light */
+                  style={{ background: "#dcfce7", color: "#15803d" }}
                 >
                   {summary?.occupancy_rate ?? 0}% Terisi
                 </span>
               </div>
             </div>
-            <div className="stat-card">
+            <div className="stat-card reveal" style={{ "--reveal-delay": "0.2s" } as React.CSSProperties}>
               <div
                 className="stat-card-icon"
-                style={{ background: "#fef2f2", color: "#dc2626" }} /* Red light */
+                style={{ background: "#fdf2f2", color: "#7B1113" }}
               >
                 <Activity size={22} strokeWidth={2.5} />
               </div>
@@ -191,10 +197,10 @@ export default function LandingPage() {
                 </span>
               </div>
             </div>
-            <div className="stat-card">
+            <div className="stat-card reveal" style={{ "--reveal-delay": "0.3s" } as React.CSSProperties}>
               <div
                 className="stat-card-icon"
-                style={{ background: "#fff7ed", color: "#ea580c" }} /* Orange light */
+                style={{ background: "#fefbf0", color: "#D4A843" }}
               >
                 <MapPin size={22} strokeWidth={2.5} />
               </div>
@@ -203,7 +209,7 @@ export default function LandingPage() {
                 <p>Kios Kosong</p>
                 <span
                   className="stat-card-badge"
-                  style={{ background: "#fef3c7", color: "#b45309" }}
+                  style={{ background: "#fefbf0", color: "#B8912E" }}
                 >
                   Tersedia
                 </span>
@@ -219,23 +225,23 @@ export default function LandingPage() {
         style={{ background: "var(--color-primary)", color: "white" }}
       >
         <div className="container" style={{ textAlign: "center" }}>
-          <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: 12 }}>
+          <h2 className="reveal" style={{ fontSize: "2rem", fontWeight: 800, marginBottom: 12 }}>
             Kelola Data Kios dengan Mudah
           </h2>
-          <p style={{ opacity: 0.8, marginBottom: 24, fontSize: "1.1rem" }}>
+          <p className="reveal" style={{ opacity: 0.8, marginBottom: 24, fontSize: "1.1rem", "--reveal-delay": "0.1s" } as React.CSSProperties}>
             Login sebagai admin untuk mengakses fitur CRUD kios, upload GeoJSON
             layer, dan monitor statistik.
           </p>
           <Link
             to="/admin/login"
-            className="btn btn-primary"
-            style={{ display: "inline-flex" }}
+            className="btn btn-primary reveal"
+            style={{ display: "inline-flex", "--reveal-delay": "0.2s" } as React.CSSProperties}
           >
             Masuk ke Portal Admin
             <ChevronRight size={16} />
           </Link>
         </div>
       </section>
-    </>
+    </div>
   );
 }

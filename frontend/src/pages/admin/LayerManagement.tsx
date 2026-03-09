@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Plus, Upload, Trash2, X, Eye, EyeOff, FileArchive, FileJson, Database } from "lucide-react";
 import api from "../../lib/api";
 import type { GisLayer, Pasar } from "../../types";
+import { useScrollReveal } from "../../hooks/useScrollReveal";
 
 export default function LayerManagement() {
   const [layers, setLayers] = useState<GisLayer[]>([]);
@@ -19,6 +20,7 @@ export default function LayerManagement() {
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const revealRef = useScrollReveal();
 
   const fetchLayers = () =>
     api.get<GisLayer[]>("/admin/layers").then((r) => setLayers(r.data));
@@ -83,7 +85,7 @@ export default function LayerManagement() {
   const handleSyncKios = async (layer: GisLayer) => {
     if (!layer.geojson) return alert("Layer ini belum memiliki GeoJSON.");
     if (!confirm(`Yakin ingin sinkronisasi layer '${layer.name}' ke Data Kios? Ini akan menambahkan/mengupdate kios berdasarkan data polygon.`)) return;
-    
+
     try {
       const res = await api.post(`/admin/layers/${layer.id}/sync-kios`);
       alert(res.data.message || "Sinkronisasi berhasil.");
@@ -110,8 +112,8 @@ export default function LayerManagement() {
   };
 
   return (
-    <>
-      <div className="admin-topbar">
+    <div ref={revealRef}>
+      <div className="admin-topbar reveal">
         <h1>🗺️ Manajemen Layer GIS</h1>
         <button
           className="btn-sm btn-blue"
@@ -132,12 +134,12 @@ export default function LayerManagement() {
           </div>
         )}
 
-        <div style={{ marginBottom: 16, padding: "12px 16px", background: "#dbeafe", borderRadius: 10, fontSize: 13, color: "#1d4ed8", border: "1px solid #93c5fd" }}>
+        <div className="reveal" style={{ marginBottom: 16, padding: "12px 16px", background: "#dbeafe", borderRadius: 10, fontSize: 13, color: "#1d4ed8", border: "1px solid #93c5fd", "--reveal-delay": "0.1s" } as React.CSSProperties}>
           💡 <strong>Cara menggunakan:</strong> Tambah layer baru, lalu upload file <strong>.zip berisi folder .gdb</strong> (ArcGIS) atau file <strong>.geojson</strong>.
           Konversi GDB → GeoJSON dilakukan otomatis di server.
         </div>
 
-        <div className="table-card">
+        <div className="table-card reveal" style={{ "--reveal-delay": "0.15s" } as React.CSSProperties}>
           <div className="table-header"><h2>Daftar Layer ({layers.length})</h2></div>
           <table>
             <thead>
@@ -298,6 +300,6 @@ export default function LayerManagement() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
