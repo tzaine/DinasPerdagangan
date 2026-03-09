@@ -1,4 +1,5 @@
 import { Link, NavLink } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
 import {
   MapPin,
   LayoutDashboard,
@@ -28,10 +29,13 @@ export default function Navbar() {
             <NavLink to="/peta">Peta Interaktif</NavLink>
           </li>
         </ul>
-        <Link to="/admin/login" className="navbar-btn">
-          <Settings size={14} style={{ display: "inline", marginRight: 6 }} />
-          Admin
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <ThemeToggle />
+          <Link to="/admin/login" className="navbar-btn">
+            <Settings size={14} style={{ display: "inline", marginRight: 6 }} />
+            Admin
+          </Link>
+        </div>
       </div>
     </nav>
   );

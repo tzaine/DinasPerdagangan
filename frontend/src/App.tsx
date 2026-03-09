@@ -1,6 +1,7 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import PublicLayout from "./components/PublicLayout";
+import { useThemeStore } from "./store/themeStore";
 
 // Public pages (eagerly loaded – small)
 import LandingPage from "./pages/LandingPage";
@@ -26,6 +27,12 @@ function PageLoader() {
 }
 
 export default function App() {
+  const { theme } = useThemeStore();
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>

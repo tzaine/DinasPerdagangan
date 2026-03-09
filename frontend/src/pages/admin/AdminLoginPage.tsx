@@ -4,6 +4,7 @@ import { Building2, Lock, Mail } from "lucide-react";
 import api from "../../lib/api";
 import { useAuthStore } from "../../store/authStore";
 import { useScrollReveal } from "../../hooks/useScrollReveal";
+import ThemeToggle from "../../components/ThemeToggle";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("admin@dinsemarang.go.id");
@@ -34,6 +35,9 @@ export default function AdminLoginPage() {
 
   return (
     <div className="login-page" ref={revealRef}>
+      <div style={{ position: "absolute", top: 24, right: 24 }}>
+        <ThemeToggle />
+      </div>
       <div className="login-card">
         <div className="login-logo reveal">
           <div className="logo-icon">

@@ -8,6 +8,7 @@ import {
   Map,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
+import ThemeToggle from "../../components/ThemeToggle";
 
 export default function AdminLayout() {
   const { user, logout, isAuthenticated } = useAuthStore();
@@ -115,25 +116,40 @@ export default function AdminLayout() {
         <div
           style={{ padding: 16, borderTop: "1px solid rgba(255,255,255,0.1)" }}
         >
-          <button
-            onClick={handleLogout}
-            className="admin-nav-link"
-            style={{
-              width: "100%",
-              cursor: "pointer",
-              background: "none",
-              color: "rgba(255,255,255,0.6)",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "8px 0",
-            }}
-          >
-            <LogOut size={16} /> Keluar
-          </button>
         </div>
       </aside>
       <div className="admin-main">
+        <header
+          style={{
+            padding: 16,
+            borderBottom: "1px solid var(--border-color)",
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+            }}
+          >
+            <ThemeToggle />
+            <button
+              onClick={handleLogout}
+              className="btn-sm"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                background: "rgba(239,68,68,0.1)",
+                color: "var(--color-danger, #ef4444)",
+              }}
+            >
+              <LogOut size={16} /> Keluar
+            </button>
+          </div>
+        </header>
         <Outlet />
       </div>
     </div>
