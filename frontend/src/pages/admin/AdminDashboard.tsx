@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { Store, TrendingUp, Activity, Percent } from "lucide-react";
 import api from "../../lib/api";
 import type { DashboardStats } from "../../types";
+import { useScrollReveal } from "../../hooks/useScrollReveal";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const revealRef = useScrollReveal();
 
   useEffect(() => {
     api.get<DashboardStats>("/dashboard/stats").then((r) => setStats(r.data));
@@ -13,7 +15,7 @@ export default function AdminDashboard() {
   const s = stats?.summary;
 
   return (
-    <>
+    <div ref={revealRef}>
       <div className="admin-topbar">
         <h1> Dashboard Admin</h1>
         <span style={{ fontSize: 13, color: "#94a3b8" }}>
@@ -48,7 +50,7 @@ export default function AdminDashboard() {
               bg: "rgba(239,68,68,0.1)",
             },
           ].map((c, i) => (
-            <div key={i} className="stat-card">
+            <div key={i} className="stat-card reveal" style={{ "--reveal-delay": `${i * 0.1}s` } as React.CSSProperties}>
               <div className="stat-card-icon" style={{ background: c.bg }}>
                 {c.icon}
               </div>
@@ -59,7 +61,7 @@ export default function AdminDashboard() {
             </div>
           ))}
         </div>
-        <div className="table-card">
+        <div className="table-card reveal" style={{ "--reveal-delay": "0.1s" } as React.CSSProperties}>
           <div className="table-header">
             <h2>Status Per Pasar</h2>
           </div>
@@ -99,6 +101,6 @@ export default function AdminDashboard() {
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 }

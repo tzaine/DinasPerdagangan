@@ -2,13 +2,13 @@
 
 /* ==================== DESIGN TOKENS ==================== */
 :root {
-  /* Semarang Blue Palette */
-  --color-primary: #0057a8;
-  --color-primary-dark: #003f7a;
-  --color-primary-light: #3b82c4;
-  --color-secondary: #005bac;
-  --color-accent: #f5a623;
-  --color-accent-dark: #d4891a;
+  /* Disdag Semarang — Maroon / Gold / Black */
+  --color-primary: #7B1113;
+  --color-primary-dark: #5A0C0E;
+  --color-primary-light: #A52528;
+  --color-secondary: #8B1A1C;
+  --color-accent: #D4A843;
+  --color-accent-dark: #B8912E;
 
   /* Neutrals */
   --color-white: #ffffff;
@@ -50,7 +50,7 @@
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.02);
   --shadow-lg: 0 12px 24px -6px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
   --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.08), 0 12px 24px rgba(0, 0, 0, 0.04);
-  --shadow-blue: 0 8px 24px rgba(0, 87, 168, 0.3);
+  --shadow-blue: 0 8px 24px rgba(123, 17, 19, 0.3);
 
   /* Typography */
   --font-family:
@@ -208,7 +208,7 @@ img {
     135deg,
     var(--color-primary) 0%,
     var(--color-primary-dark) 60%,
-    #051c33 100%
+    #1a0a0a 100%
   );
   position: relative;
   overflow: hidden;
@@ -347,7 +347,7 @@ img {
 }
 
 .stat-card {
-  background: #f0f4fa;
+  background: #faf0f0;
   border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
   box-shadow: var(--shadow-sm);
@@ -412,7 +412,7 @@ img {
 .section-label {
   display: inline-block;
   padding: var(--spacing-xs) var(--spacing-md);
-  background: rgba(0, 87, 168, 0.08);
+  background: rgba(123, 17, 19, 0.08);
   color: var(--color-primary);
   border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
@@ -548,7 +548,7 @@ img {
   border-radius: var(--radius-full);
   font-size: 0.725rem;
   font-weight: 600;
-  background: rgba(0, 87, 168, 0.08);
+  background: rgba(123, 17, 19, 0.08);
   color: var(--color-primary-dark);
 }
 
@@ -965,7 +965,7 @@ tr:hover td {
 
 .form-control:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(0, 87, 168, 0.1);
+  box-shadow: 0 0 0 3px rgba(123, 17, 19, 0.1);
 }
 
 .form-grid-2 {
@@ -1087,6 +1087,22 @@ tr:hover td {
   background: #dbeafe;
   color: #1d4ed8;
   border-color: #93c5fd;
+}
+
+/* ==================== SCROLL REVEAL ==================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0s);
+  will-change: opacity, transform;
+}
+
+.reveal[data-visible="true"] {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ==================== RESPONSIVE ==================== */
