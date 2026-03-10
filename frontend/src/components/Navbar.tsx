@@ -5,7 +5,6 @@ import {
   LayoutDashboard,
   Map,
   Settings,
-  Building2,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -13,10 +12,14 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="navbar-brand">
-          <div className="brand-logo">
-            <Building2 size={20} />
+          <div className="brand-logo" style={{ background: "transparent", width: 44, height: 44 }}>
+            <img 
+              src="/image/lambang_kota_semarang.png" 
+              alt="Logo Pemkot Semarang" 
+              style={{ width: "100%", height: "100%", objectFit: "contain" }} 
+            />
           </div>
-          <span>GIS Disdag Semarang</span>
+          <span>Sistem Informasi Pemetaan Rejomulyo & Klitikan</span>
         </Link>
         <ul className="navbar-nav">
           <li>

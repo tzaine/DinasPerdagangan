@@ -38,12 +38,12 @@ export default function LandingPage() {
           <div className="hero-content">
             <div className="hero-badge reveal">
               <Activity size={12} />
-              Sistem Informasi Geografis Pasar
+              Sistem Informasi Geografis Kios Pasar
             </div>
             <h1 className="reveal" style={{ "--reveal-delay": "0.1s" } as React.CSSProperties}>
-              Peta Sebaran Pasar
+              Peta Sebaran Kios Pasar
               <br />
-              <span>Kota Semarang</span>
+              <span>Rejomulyo & Klitikan Kota Semarang</span>
             </h1>
             <p className="reveal" style={{ "--reveal-delay": "0.2s" } as React.CSSProperties}>
               Platform digital pengelolaan data pasar dan kios Dinas Perdagangan
@@ -216,30 +216,6 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section
-        className="section"
-        style={{ background: "var(--color-primary)", color: "white" }}
-      >
-        <div className="container" style={{ textAlign: "center" }}>
-          <h2 className="reveal" style={{ fontSize: "2rem", fontWeight: 800, marginBottom: 12 }}>
-            Kelola Data Kios dengan Mudah
-          </h2>
-          <p className="reveal" style={{ opacity: 0.8, marginBottom: 24, fontSize: "1.1rem", "--reveal-delay": "0.1s" } as React.CSSProperties}>
-            Login sebagai admin untuk mengakses fitur CRUD kios, upload GeoJSON
-            layer, dan monitor statistik.
-          </p>
-          <Link
-            to="/admin/login"
-            className="btn btn-primary reveal"
-            style={{ display: "inline-flex", "--reveal-delay": "0.2s" } as React.CSSProperties}
-          >
-            Masuk ke Portal Admin
-            <ChevronRight size={16} />
-          </Link>
         </div>
       </section>
     </div>

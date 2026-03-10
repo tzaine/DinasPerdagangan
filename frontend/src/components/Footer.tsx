@@ -51,7 +51,7 @@ export default function Footer() {
           <span>
             © 2025 Dinas Perdagangan Kota Semarang. All rights reserved.
           </span>
-          <span>GIS Peta Sebaran v1.0</span>
+          <span>SIPERTIK</span>
         </div>
       </div>
     </footer>
