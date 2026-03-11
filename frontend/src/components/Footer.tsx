@@ -45,6 +45,24 @@ export default function Footer() {
               </li>
             </ul>
           </div>
+          <div className="footer-links">
+            <h4>Lokasi Kantor</h4>
+            <div style={{ borderRadius: "8px", overflow: "hidden", marginTop: "8px", border: "1px solid rgba(255,255,255,0.1)" }}>
+              <iframe
+                src="https://maps.google.com/maps?q=Jl.%20Aloon-Aloon%20Bar.%20Selatan%20No.4a,%20Kauman,%20Semarang%20Tengah,%20Semarang%20City,%20Central%20Java%2050188,%20Indonesia&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                width="100%"
+                height="140"
+                style={{ border: 0, display: "block" }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Peta Lokasi Kantor Dinas Perdagangan"
+              />
+            </div>
+            <p style={{ fontSize: "0.85rem", marginTop: "12px", lineHeight: 1.5, color: "var(--color-gray-400)" }}>
+              Jl. Aloon-Aloon Bar. Selatan No.4a, Kauman, Semarang Tengah, Semarang City, Central Java 50188, Indonesia
+            </p>
+          </div>
         </div>
         <hr className="footer-divider" />
         <div className="footer-bottom">
