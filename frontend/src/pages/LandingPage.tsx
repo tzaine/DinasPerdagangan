@@ -71,8 +71,7 @@ export default function LandingPage() {
             <span className="section-label">Kawasan Pasar</span>
             <h2 className="section-title">Pasar yang Dikelola</h2>
             <p className="section-subtitle">
-              Data real-time persebaran kios di pasar-pasar yang dikelola Dinas
-              Perdagangan Kota Semarang.
+              Data real time persebaran kios di Pasar Rejomulyo & Pasar Klitikan.
             </p>
           </div>
           <div className="pasar-grid">

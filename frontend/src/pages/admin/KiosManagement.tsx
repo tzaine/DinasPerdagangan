@@ -59,20 +59,20 @@ export default function KiosManagement() {
     api.get("/pasars").then((r) => setPasars(r.data));
     api
       .get("/admin/kios?per_page=1")
-      .then(() => {})
-      .catch(() => {});
+      .then(() => { })
+      .catch(() => { });
     // Fetch categories via kios list
     api
       .get<PaginatedResponse<Kios>>("/admin/kios", { params: { per_page: 1 } })
-      .then(() => {})
-      .catch(() => {});
+      .then(() => { })
+      .catch(() => { });
     // inline fetch categories
     fetch("http://localhost:8000/api/admin/kios?with_categories=1", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
         Accept: "application/json",
       },
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
   const openCreate = () => {
@@ -161,20 +161,6 @@ export default function KiosManagement() {
     <div ref={revealRef}>
       <div className="admin-topbar reveal">
         <h1> Manajemen Kios</h1>
-        <button
-          className="btn-sm btn-blue"
-          style={{
-            padding: "8px 18px",
-            borderRadius: 10,
-            fontSize: 13,
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-          onClick={openCreate}
-        >
-          <Plus size={14} /> Tambah Kios
-        </button>
       </div>
       <div className="admin-content">
         <div className="table-card reveal" style={{ "--reveal-delay": "0.1s" } as React.CSSProperties}>

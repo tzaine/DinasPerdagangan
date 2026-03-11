@@ -13,10 +13,10 @@ export default function Navbar() {
       <div className="navbar-inner">
         <Link to="/" className="navbar-brand">
           <div className="brand-logo" style={{ background: "transparent", width: 44, height: 44 }}>
-            <img 
-              src="/image/lambang_kota_semarang.png" 
-              alt="Logo Pemkot Semarang" 
-              style={{ width: "100%", height: "100%", objectFit: "contain" }} 
+            <img
+              src="/image/lambang_kota_semarang.png"
+              alt="Logo Pemkot Semarang"
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
             />
           </div>
           <span>Sistem Informasi Pemetaan Rejomulyo & Klitikan</span>
@@ -26,7 +26,7 @@ export default function Navbar() {
             <NavLink to="/">Beranda</NavLink>
           </li>
           <li>
-            <NavLink to="/dashboard">Dashboard</NavLink>
+            <NavLink to="/dashboard">Statistik</NavLink>
           </li>
           <li>
             <NavLink to="/peta">Peta Interaktif</NavLink>

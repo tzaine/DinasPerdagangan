@@ -127,7 +127,7 @@ export default function DashboardPage() {
           style={{ textAlign: "left", marginBottom: 32 }}
         >
           <span className="section-label">Statistik Real-time</span>
-          <h1 className="section-title">Dashboard Publik</h1>
+          <h1 className="section-title">Dashboard Statistik</h1>
           <p className="section-subtitle" style={{ margin: 0 }}>
             Data persebaran dan occupancy kios di pasar-pasar Kota Semarang.
           </p>

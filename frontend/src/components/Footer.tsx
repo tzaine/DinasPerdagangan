@@ -7,9 +7,9 @@ export default function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
-            <h3>🏛️ Dinas Perdagangan Kota Semarang</h3>
+            <h3>Dinas Perdagangan Kota Semarang</h3>
             <p>
-              Sistem Informasi Geografis Persebaran Pasar dan Kios di Kota
+              Sistem Informasi Geografis Persebaran Pasar dan Kios Rejomulyo & Klitikan di Kota
               Semarang. Mewujudkan pengelolaan pasar yang modern, transparan,
               dan berbasis data.
             </p>
@@ -60,7 +60,7 @@ export default function Footer() {
               />
             </div>
             <p style={{ fontSize: "0.85rem", marginTop: "12px", lineHeight: 1.5, color: "var(--color-gray-400)" }}>
-              Jl. Aloon-Aloon Bar. Selatan No.4a, Kauman, Semarang Tengah, Semarang City, Central Java 50188, Indonesia
+              Jl. Aloon-Aloon Bar. Selatan No.4a, Kauman, Semarang Tengah, Kota Semarang, Jawa Tengah 50188, Indonesia
             </p>
           </div>
         </div>
