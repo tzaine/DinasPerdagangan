@@ -62,16 +62,30 @@ export default function DashboardPage() {
     ],
   };
 
+  const chartCats = cats.filter(c =>
+    c.name.toLowerCase() === "ikan basah" ||
+    c.name.toLowerCase() === "ikan asin"
+  );
+
+  const klitikan = pasars.find(p => p.name.toLowerCase().includes("klitikan"));
+  if (klitikan) {
+    chartCats.push({
+      name: "Sayur & Buah",
+      count: klitikan.active,
+      color: "#059669"
+    });
+  }
+
   const categoryData = {
-    labels: cats.map((c) =>
+    labels: chartCats.map((c) =>
       c.name.length > 15 ? c.name.slice(0, 15) + "…" : c.name,
     ),
     datasets: [
       {
         label: "Jumlah Kios Aktif",
-        data: cats.map((c) => c.count),
-        backgroundColor: cats.map((c) => c.color + "cc"),
-        borderColor: cats.map((c) => c.color),
+        data: chartCats.map((c) => c.count),
+        backgroundColor: chartCats.map((c) => c.color + "cc"),
+        borderColor: chartCats.map((c) => c.color),
         borderWidth: 2,
         borderRadius: 8,
       },
