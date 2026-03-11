@@ -4,7 +4,6 @@ import {
   Store,
   Layers,
   LogOut,
-  Building2,
   Map,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
@@ -38,16 +37,21 @@ export default function AdminLayout() {
           >
             <div
               style={{
-                width: 32,
-                height: 32,
-                background: "rgba(255,255,255,0.15)",
+                width: 36,
+                height: 36,
                 borderRadius: 8,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                overflow: "hidden",
+                flexShrink: 0,
               }}
             >
-              <Building2 size={18} />
+              <img
+                src="/image/lambang_kota_semarang.png"
+                alt="Lambang Kota Semarang"
+                style={{ width: 36, height: 36, objectFit: "contain" }}
+              />
             </div>
             <div>
               <h2>Admin Panel</h2>
@@ -58,23 +62,24 @@ export default function AdminLayout() {
             style={{
               marginTop: 8,
               padding: "6px 10px",
-              background: "rgba(255,255,255,0.1)",
+              background: "var(--bg-page)",
               borderRadius: 8,
+              border: "1px solid var(--border-color)",
             }}
           >
             <p
               style={{
                 fontSize: 11,
-                color: "rgba(255,255,255,0.5)",
+                color: "var(--text-muted)",
                 marginBottom: 2,
               }}
             >
               Login sebagai
             </p>
-            <p style={{ fontSize: 12, fontWeight: 600, color: "white" }}>
+            <p style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>
               {user?.name}
             </p>
-            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>
+            <span style={{ fontSize: 10, color: "var(--text-secondary)" }}>
               {user?.role}
             </span>
           </div>
@@ -114,7 +119,7 @@ export default function AdminLayout() {
           </a>
         </nav>
         <div
-          style={{ padding: 16, borderTop: "1px solid rgba(255,255,255,0.1)" }}
+          style={{ padding: 16, borderTop: "1px solid var(--border-color)" }}
         >
         </div>
       </aside>

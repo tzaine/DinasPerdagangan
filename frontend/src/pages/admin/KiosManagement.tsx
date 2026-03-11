@@ -160,7 +160,7 @@ export default function KiosManagement() {
   return (
     <div ref={revealRef}>
       <div className="admin-topbar reveal">
-        <h1>🏪 Manajemen Kios</h1>
+        <h1> Manajemen Kios</h1>
         <button
           className="btn-sm btn-blue"
           style={{

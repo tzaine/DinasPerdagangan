@@ -114,7 +114,7 @@ export default function LayerManagement() {
   return (
     <div ref={revealRef}>
       <div className="admin-topbar reveal">
-        <h1>🗺️ Manajemen Layer GIS</h1>
+        <h1> Manajemen Layer GIS</h1>
         <button
           className="btn-sm btn-blue"
           style={{ padding: "8px 18px", borderRadius: 10, fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}

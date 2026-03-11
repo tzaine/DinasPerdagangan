@@ -224,7 +224,7 @@ export default function DashboardPage() {
 
         {/* Charts Row 2 */}
         <div className="chart-card reveal" style={{ marginBottom: 32, "--reveal-delay": "0.1s" } as React.CSSProperties}>
-          <h3>🗂️ Distribusi Kategori Kios Aktif</h3>
+          <h3> Distribusi Kategori Kios Aktif</h3>
           <p>Jumlah kios aktif berdasarkan jenis komoditas</p>
           <Bar
             data={categoryData}
